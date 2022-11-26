@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "title": "Lille Pakke",
+    "price": 199,
+    "before": 249,
+    "shops": 1,
+    "desc": "Til dig der har brug for en enkel løsning",
+    "disabled": false
+  },
+  {
+    "id": 2,
+    "title": "Medium Pakke",
+    "price": 299,
+    "before": 499,
+    "shops": 3,
+    "desc": "Nu vil du lidt mere",
+    "disabled": true
+  },
+  {
+    "id": 3,
+    "title": "Store Pakke",
+    "price": 399,
+    "before": 599,
+    "shops": 10,
+    "desc": "Den store verden",
+    "disabled": true
+  }
+]
