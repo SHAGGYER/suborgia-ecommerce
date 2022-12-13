@@ -117,5 +117,5 @@ export const LabelStyle = styled.label`
   font-size: 12px;
   text-transform: uppercase;
   color: ${(props) => (props.dark ? "white" : "black")};
-  margin-bottom: ${props => props.noMarginLabel ? "0" : "0.5rem"};
+  margin-bottom: 0.5rem;
 `;

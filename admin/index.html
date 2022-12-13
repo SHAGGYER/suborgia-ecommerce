@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>DaySure ACP</title>
-</head>
-<body>
-<div id="root"></div>
-<script type="module" src="/src/main.jsx"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DaySure Control Panel</title>
+
+    <script
+      defer
+      type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAsTEWRX4dHGs5KzHw3ZY0QF_vB4sr-zo&libraries=places&language=da"
+    ></script>
+  </head>
+  <body>
+    <audio id="audio"></audio>
+    <div id="root"></div>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

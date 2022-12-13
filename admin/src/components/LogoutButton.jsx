@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
 const LogoutButton = styled.button`
-  background-color: var(--primary);
+  background-color: #ff62c6;
   border: none;
   padding: 1rem 1rem;
-  color: white;
+  color: black;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -13,10 +13,6 @@ const LogoutButton = styled.button`
 
   img {
     width: 20px;
-  }
-
-  &:hover {
-    background-color: var(--primary-light);
   }
 
   cursor: ${(props) => (!!props.$loading ? "not-allowed" : "pointer")};
