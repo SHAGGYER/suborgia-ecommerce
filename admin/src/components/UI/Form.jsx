@@ -87,6 +87,8 @@ const TextArea = ({
 
 const TextField = ({
                      label,
+                     style,
+                     inputEl,
                      value,
                      onChange,
                      onBlur,
@@ -99,30 +101,28 @@ const TextField = ({
                      disabled,
                      appendButton,
                      appendOnClick,
-                     prependComponent,
-                     prependOnClick,
+                     noMarginLabel
                    }) => {
   return (
-    <div style={{width: "100%", background: "var(--primary-light)", padding: "1rem 1rem"}}>
-      {label && <LabelStyle dark={dark}>{label}</LabelStyle>}
+    <div style={{width: "100%", background: "white", padding: "1rem 1rem"}}>
+      {label && <LabelStyle noMarginLabel={noMarginLabel} dark={dark}>{label}</LabelStyle>}
       <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>
-        {prependComponent && (
-          <div style={{cursor: "pointer"}} onClick={prependOnClick}>
-            {prependComponent}
-          </div>
+        {!inputEl ? (
+          <TextFieldStyle
+            readOnly={readonly}
+            value={value}
+            onChange={!disabled ? onChange : () => {
+            }}
+            onClick={onClick}
+            placeholder={placeholder}
+            type={type}
+            dark={dark}
+            onBlur={onBlur}
+            disabled={disabled}
+          />
+        ) : (
+          inputEl
         )}
-        <TextFieldStyle
-          readOnly={readonly}
-          value={value}
-          onChange={!disabled ? onChange : () => {
-          }}
-          onClick={onClick}
-          placeholder={placeholder}
-          type={type}
-          dark={dark}
-          onBlur={onBlur}
-          disabled={disabled}
-        />
         {appendButton && (
           <div style={{cursor: "pointer"}} onClick={appendOnClick}>
             {appendButton}

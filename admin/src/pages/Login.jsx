@@ -6,25 +6,24 @@ import { Form } from "../components/UI/Form";
 import { UI } from "../components/UI/UI";
 import { Alert } from "../components/UI/Alert";
 import PrimaryButton from "../components/UI/PrimaryButton";
-import { ClipLoader } from "react-spinners";
 
 const Wrapper = styled.div`
-  background-color: var(--primary);
+  background-color: var(--primary-dark);
   padding: 1rem;
   max-width: 600px;
-  margin: 2rem auto 0;
+  margin: 0 auto;
+  margin-top: 2rem;
 
   h2 {
-    margin: 0 0 1rem;
+    margin: 0;
+    margin-bottom: 1rem;
     font-size: 40px;
   }
 `;
 
-export default function Login() {
-  const dialog = useDialog();
+export default function Login({ setUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState({});
 
   const login = async (event) => {
@@ -35,19 +34,13 @@ export default function Login() {
         password,
       };
 
-      setLoading(true);
       const { data } = await HttpClient().post("/api/auth/login", body);
       localStorage.setItem("token", data.token);
-      dialog.close();
-      setTimeout(() => {
-        window.location.href = "/barber?isLoggedIn=true";
-      }, 1000);
+      window.location.reload();
     } catch (e) {
       if (e.response && e.response.status === 403) {
         setError(e.response.data);
       }
-
-      setLoading(false);
     }
   };
 
@@ -75,10 +68,7 @@ export default function Login() {
           error={error.password}
         />
         <UI.Spacer bottom={1} />
-        <PrimaryButton onClick={login} disabled={loading}>
-          <ClipLoader loading={loading} size={20} />
-          Login
-        </PrimaryButton>
+        <PrimaryButton>Log Ind</PrimaryButton>
       </form>
     </Wrapper>
   );

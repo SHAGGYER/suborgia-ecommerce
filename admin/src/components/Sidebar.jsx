@@ -1,17 +1,18 @@
-import React, { useContext } from "react";
+import React, {useContext} from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import AppContext from "../AppContext";
 import LogoutButton from "./LogoutButton";
-import moment from "moment";
+import {useNavigate} from "react-router-dom";
+import SidebarMenu from "./SidebarMenu";
 
 const SidebarWrapper = styled.div`
   width: 300px;
   height: 100%;
-  background-color: var(--primary);
+  background-color: var(--primary-dark);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  color: white;
 
   .header {
     display: flex;
@@ -23,6 +24,7 @@ const SidebarWrapper = styled.div`
       margin-bottom: 0.5rem;
       line-height: 1;
       font-family: "Anton", sans-serif;
+      letter-spacing: 2px;
     }
   }
 
@@ -37,15 +39,16 @@ const SidebarWrapper = styled.div`
 
       li {
         padding: 0.5rem;
-        margin: 0.5rem 0;
+        margin: 0 0 0.5rem;
         border-radius: 0.5rem;
-        background-color: var(--primary-dark);
+        background-color: var(--primary);
         font-size: 1.2rem;
-        font-weight: bold;
         cursor: pointer;
+        user-select: none;
 
         &:hover {
           background-color: var(--primary-light);
+          color: black;
         }
       }
     }
@@ -53,44 +56,57 @@ const SidebarWrapper = styled.div`
 `;
 
 function Sidebar(props) {
-  const { user, logout, appSettings, isAdmin } = useContext(AppContext);
+  const {admin, logout} = useContext(AppContext);
 
   const navigate = useNavigate();
 
-  const getAmountDaysLeftOnTrial = () => {
-    return moment(user.stripeSubscriptionCurrentPeriodEnd).diff(
-      moment(),
-      "days"
-    );
-  };
+  const userItems = [
+    {
+      title: "Gennemse",
+      to: "/users"
+    },
+    {
+      title: "Opret",
+      to: "/users/create"
+    }
+  ]
+
+  const plansItems = [
+    {
+      title: "Gennemse",
+      to: "/plans"
+    },
+    {
+      title: "Opret",
+      to: "/plans/create"
+    }
+  ]
+
+  const couponsItems = [
+    {
+      title: "Gennemse",
+      to: "/users"
+    },
+    {
+      title: "Opret",
+      to: "/users/create"
+    }
+  ]
 
   return (
     <SidebarWrapper>
       <div className="header">
-        <h1>DaySure</h1>
-        <p>{user?.name}</p>
-        {user.isTrialing && (
-          <p>Afprøvelse ({getAmountDaysLeftOnTrial()} dage tilbage)</p>
-        )}
-        {isAdmin && <p>VIA ADMIN</p>}
+        <h1>DaySure ACP</h1>
+        <p>{admin.name}</p>
       </div>
 
       <div className="content">
         <ul>
           <li onClick={() => navigate("/")}>Dashboard</li>
-          <li onClick={() => navigate("/live-feed")}>Live Feed</li>
-          <li onClick={() => navigate("/purchases")}>Betalinger</li>
-          <li onClick={() => navigate("/products")}>Produkter</li>
+          <SidebarMenu title="Brugere" items={userItems}/>
+          <SidebarMenu title="Plans" items={plansItems}/>
+          <SidebarMenu title="Coupons" items={couponsItems}/>
           <li onClick={() => navigate("/settings")}>Indstillinger</li>
-          <li onClick={() => navigate("/help-center")}>Help Center</li>
-          {appSettings?.appEnv === "production" && (
-            <>
-              <li onClick={() => navigate("/subscription")}>Abonnement</li>
-              <li onClick={() => navigate("/update-card")}>
-                Opdater Kreditkort
-              </li>
-            </>
-          )}
         </ul>
       </div>
 

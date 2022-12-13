@@ -1,18 +1,15 @@
 :root {
-    --primary: #eae151;
-    --primary-dark: #ddd92a;
-    --primary-light: #eeefa8;
-    --light: #fafdf6;
-    --dark: #2d2a32;
+    --primary: #6883BA;
+    --primary-dark: #3D3B8E;
+    --primary-light: #64b5f6;
+    --light: #F3EAF4;
+    --dark: #020202;
     --green: #90a959;
-    --red: #ee522f;
-    --blue: #5e9ed6;
-    --st-button-lightColor: #ee522f !important;
-    --st-button-lightTextColor: white !important;
+    --red: #e53935;
 }
 
-.calendar-dialog {
-    max-width: 900px !important;
-    width: 900px !important;
+.big-modal {
+    width: 80% !important;
+    max-width: 80% !important;
+    height: 80% !important;
 }
-
