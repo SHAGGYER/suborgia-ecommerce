@@ -1,4 +1,4 @@
-import {createContext} from "react";
+import { createContext } from "react";
 
 const AppContext = createContext({
   admin: null,
@@ -7,6 +7,8 @@ const AppContext = createContext({
   installed: false,
   appSettings: null,
   setAppSettings: () => null,
+  currentHelp: 0,
+  setCurrentHelp: () => null,
 });
 
 export default AppContext;

@@ -26,4 +26,14 @@ class CartItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function properties()
+    {
+        return $this->hasMany(CartItemProperty::class);
+    }
+
+    public function cartItemStockCollection()
+    {
+        return $this->hasOne(CartItemStockCollection::class, "cart_item_id");
+    }
 }

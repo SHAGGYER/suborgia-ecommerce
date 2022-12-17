@@ -3,13 +3,59 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import CartService from "../../services/CartService";
 import PrimaryButton from "../UI/PrimaryButton";
+import Skeleton from "react-loading-skeleton";
+import { CustomDialog, useDialog } from "react-st-modal";
+import ProductProperties from "./ProductProperties";
+import Slider from "../Slider";
+
+const PropertiesDialogStyled = styled.div`
+  padding: 1rem;
+
+  h2 {
+    margin-bottom: 1rem;
+  }
+`;
+
+const PropertiesDialog = ({ product }) => {
+  const dialog = useDialog();
+  const [selectedProperties, setSelectedProperties] = React.useState({});
+  const [outOfStock, setOutOfStock] = React.useState(false);
+  const [stockCollection, setStockCollection] = React.useState(null);
+
+  const onChange = ({ properties, stockCollection }) => {
+    setSelectedProperties(properties);
+    setStockCollection(stockCollection);
+  };
+
+  return (
+    <PropertiesDialogStyled>
+      <h1>{product.name}</h1>
+
+      <h2>Choose Properties</h2>
+
+      <ProductProperties
+        properties={product.properties}
+        stockCollections={product.stock_collections}
+        onChange={onChange}
+        getOutOfStock={(outOfStock) => setOutOfStock(outOfStock)}
+      />
+
+      <PrimaryButton
+        disabled={outOfStock}
+        onClick={() => dialog.close({ selectedProperties, stockCollection })}
+      >
+        Add to cart
+      </PrimaryButton>
+    </PropertiesDialogStyled>
+  );
+};
 
 const Container = styled.div`
   position: relative;
   width: 100%;
   transition: all 0.5s ease-in-out;
 
-  &:hover {
+  &:hover:not(.slim) {
     border-bottom: none;
     box-shadow: 0 10px 7px 0 rgba(0, 0, 0, 0.2);
     .hover-content {
@@ -38,7 +84,6 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 1rem;
     opacity: 0;
     transition: all 0.5s ease-in-out;
     background-color: white;
@@ -58,11 +103,10 @@ const ProductStyled = styled.div`
   cursor: pointer;
   transition: all 0.5s linear;
 
-  &:hover {
-  }
-
   h3 {
     font-size: 16px;
+    text-align: center;
+    word-break: break-word;
   }
 
   h5 {
@@ -70,10 +114,14 @@ const ProductStyled = styled.div`
   }
 
   img {
-    margin-bottom: 1rem;
     width: 100%;
-    height: 100%;
+    height: 200px;
     object-fit: cover;
+    object-position: center;
+  }
+
+  &.slim img {
+    height: 100px;
   }
 
   .price {
@@ -93,6 +141,10 @@ const ProductStyled = styled.div`
     width: 100%;
     height: 100%;
     display: flex;
+
+    .wrapper {
+      margin-bottom: 1rem;
+    }
 
     .quick-view {
       position: absolute;
@@ -115,37 +167,89 @@ const ProductStyled = styled.div`
   }
 `;
 
-export default function Product({ product, size }) {
+export default function Product({ product, loading, slim }) {
   const history = useHistory();
+  const [showSlider, setShowSlider] = React.useState(false);
+
+  const handleAddToCart = async () => {
+    if (product?.properties?.length > 0) {
+      const result = await CustomDialog(<PropertiesDialog product={product} />);
+      if (result) {
+        const { price } = CartService.getPrice(
+          product,
+          result.selectedProperties
+        );
+
+        CartService.addToCart(
+          product.id,
+          price,
+          1,
+          result.selectedProperties,
+          result.stockCollection?.collectionId
+        );
+      }
+      return;
+    }
+    await CartService.addToCart(product, 1);
+  };
+
+  const redirectToProduct = () => {
+    history.push(`/products/${product.id}`);
+  };
 
   return (
-    <Container>
-      <ProductStyled className="product">
-        <div className="image-container">
-          <img src={product?.image} alt="product" />
-          <a
-            href="#"
-            className="quick-view"
-            onClick={() => history.push(`/products/${product.id}`)}
-          >
-            <i className="fa-solid fa-eye" />
-            Quick View
-          </a>
-        </div>
+    <Container
+      className={slim ? "slim" : ""}
+      onMouseEnter={() => setShowSlider(true)}
+      onMouseLeave={() => setShowSlider(false)}
+      onClick={() => (slim ? redirectToProduct() : null)}
+    >
+      {loading ? (
+        <Skeleton height={200} width={"100%"} />
+      ) : (
+        <ProductStyled className={"product " + (slim ? "slim" : "")}>
+          <div className="image-container">
+            <div className="wrapper">
+              {showSlider ? (
+                <Slider
+                  items={product?.images?.map((image, index) => (
+                    <img key={index} src={image.file_path} alt="product" />
+                  ))}
+                />
+              ) : (
+                <img src={product?.images?.[0]?.file_path} alt="product" />
+              )}
+            </div>
+            {!slim && (
+              <a
+                href="#"
+                className="quick-view"
+                onClick={() => redirectToProduct()}
+              >
+                <i className="fa-solid fa-eye" />
+                Quick View
+              </a>
+            )}
+          </div>
 
-        <h5>{product?.category?.name}</h5>
-        <h3>{product?.name}</h3>
-        <p className="price">
-          ${product?.price}
-          {product?.oldPrice ? <s>${product.oldPrice}</s> : ""}
-        </p>
-      </ProductStyled>
-      <div className="hover-content">
-        <PrimaryButton onClick={() => CartService.addToCart(product, 1)}>
-          <i className="fa-solid fa-cart-plus" />
-          Add to cart
-        </PrimaryButton>
-      </div>
+          <h5>{product?.category?.name}</h5>
+          <h3>
+            {product?.name} ({product?.id})
+          </h3>
+          <p className="price">
+            ${product?.price}
+            {product?.oldPrice ? <s>${product.oldPrice}</s> : ""}
+          </p>
+        </ProductStyled>
+      )}
+      {!slim && (
+        <div className="hover-content">
+          <PrimaryButton onClick={handleAddToCart}>
+            <i className="fa-solid fa-cart-plus" />
+            Add to cart
+          </PrimaryButton>
+        </div>
+      )}
     </Container>
   );
 }

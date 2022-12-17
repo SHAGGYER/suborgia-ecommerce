@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function init(Request $request) {
+    public function init(Request $request)
+    {
         $user = null;
 
         if (auth()->guard("sanctum")->check()) {
@@ -19,7 +20,35 @@ class AuthController extends Controller
         ];
     }
 
-    public function login(Request $request) {
+    public function register(Request $request)
+    {
+        $request->validate([
+            "name" => "required",
+            "email" => "required|email|unique:users",
+            "password" => "required",
+            "passwordAgain" => "required|same:password"
+        ]);
+
+        $user = User::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "password" => bcrypt($request->password)
+        ]);
+
+        $token = $user->createToken("auth_token")->plainTextToken;
+
+        return [
+            "token" => $token
+        ];
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            "email" => "required|email",
+            "password" => "required",
+        ]);
+
         $credentials = $request->only("email", "password");
 
         if (auth()->attempt($credentials)) {

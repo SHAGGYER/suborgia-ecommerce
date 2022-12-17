@@ -16,7 +16,10 @@ return new class extends Migration
         Schema::create('property_fields', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer("property_id")->unsigned();
+            $table->string("type")->nullable();
+            $table->double("adjusted_price")->nullable();
+            $table->integer("stock")->nullable();
+            $table->integer("property_id");
             $table->timestamps();
         });
     }

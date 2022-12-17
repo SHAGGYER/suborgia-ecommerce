@@ -13,4 +13,9 @@ class ProductProperty extends Model
     {
         return $this->hasMany(PropertyField::class, 'property_id', 'id');
     }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

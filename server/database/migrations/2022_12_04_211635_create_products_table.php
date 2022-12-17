@@ -17,11 +17,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
-            $table->string('image');
-            $table->integer('price');
+            $table->text("long_description")->nullable();
+            $table->string('image')->nullable();
+            $table->double('price');
             $table->integer('stock');
             $table->integer('category_id');
-            $table->integer('brand_id');
+            $table->integer('brand_id')->nullable();
             $table->timestamps();
         });
     }

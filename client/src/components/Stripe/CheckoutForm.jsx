@@ -1,24 +1,51 @@
-import React, {useState} from "react";
-import {injectStripe} from "react-stripe-elements";
-import StripePurple from "../../Images/stripe_purple.svg";
-import Dankort from "../../Images/dankort.svg";
-import Mastercard from "../../Images/mastercard.svg";
-import Maestro from "../../Images/maestro.svg";
-import Visa from "../../Images/visa.svg";
+import React, { useState } from "react";
+import { injectStripe } from "react-stripe-elements";
 import CardSection from "./CardSection";
 import HttpClient from "../../services/HttpClient";
-import Alert from "../UI/Alert";
-import {Form} from "../UI/Form";
-import {UI} from "../UI/UI";
 import Checkmark from "../Checkmark";
+import PrimaryButton from "../UI/PrimaryButton";
+import styled from "styled-components";
+import { useEffect } from "react";
 
-const CheckoutForm = ({stripe, credits, total, onSuccessfulPayment}) => {
-  console.log(credits);
+const Form = styled.form`
+  width: 100%;
+  border: 1px solid #efefef;
+  padding: 1rem;
+`;
+
+const PaymentSuccess = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const CheckoutForm = ({
+  stripe,
+  subtotal,
+  tax,
+  total,
+  onSuccessfulPayment,
+  discount,
+}) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState();
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
 
-  const [paymentSuccess, setPaymentSuccessfull] = useState(false);
+  const [paymentSuccess, setPaymentSuccessful] = useState(false);
+
+  useEffect(() => {
+    if (paymentSuccess) {
+      setTimeout(() => {
+        onSuccessfulPayment();
+      }, 2000);
+    }
+  }, [paymentSuccess]);
 
   const handleSubmit = async (ev) => {
     ev.preventDefault();
@@ -27,22 +54,33 @@ const CheckoutForm = ({stripe, credits, total, onSuccessfulPayment}) => {
     setSubmitting(true);
 
     try {
-      const sourceResponse = await stripe.createSource({type: "card"});
-      const {source, error} = sourceResponse;
+      const sourceResponse = await stripe.createSource({ type: "card" });
+      const { source, error } = sourceResponse;
       if (error) {
         setError(error.message);
         setSubmitting(false);
         return;
       }
 
-      const {data} = await HttpClient().post("/api/billing/charge", {
+      const cartId = localStorage.getItem("cartId");
+
+      const { data } = await HttpClient().post("/api/cart/pay", {
         source,
-        name,
-        total,
-        credits,
+        cartId,
+        orderData: {
+          name,
+          email,
+          address,
+          city,
+          zip,
+          country,
+          subtotal,
+          tax,
+          total: total?.toFixed(2),
+          discount,
+        },
       });
-      onSuccessfulPayment(data.user);
-      setPaymentSuccessfull(true);
+      setPaymentSuccessful(true);
     } catch (error) {
       setSubmitting(false);
       if (
@@ -57,59 +95,85 @@ const CheckoutForm = ({stripe, credits, total, onSuccessfulPayment}) => {
   };
 
   return (
-    <React.Fragment>
-      <Form width="600px" padding="1.3rem 2rem" onSubmit={handleSubmit}>
-
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-end",
+      }}
+    >
+      <Form onSubmit={handleSubmit}>
         {!paymentSuccess ? (
           <>
-            {/* 
-      <h2 className="text-md mb-1">Betaling</h2> */}
-            <h3
-              className="text-3xl mb-4"
-              style={{fontFamily: "var(--form-header-text)"}}
-            >
-              DKK {parseFloat(total).toFixed(2)}
-            </h3>
-            {!!error && <Alert error>{error}</Alert>}
+            <p style={{ fontWeight: "bold", marginBottom: "1rem" }}>
+              Your Details
+            </p>
             <input
               className="card__element mb-1"
-              style={{padding: "0.8rem"}}
-              placeholder="Navn på kort"
+              style={{ padding: "0.8rem" }}
+              placeholder="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-            <CardSection/>
+            <input
+              className="card__element mb-1"
+              style={{ padding: "0.8rem" }}
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              className="card__element mb-1"
+              style={{ padding: "0.8rem" }}
+              placeholder="Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+            <input
+              className="card__element mb-1"
+              style={{ padding: "0.8rem" }}
+              placeholder="City"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
+            <input
+              className="card__element mb-1"
+              style={{ padding: "0.8rem" }}
+              placeholder="Zip"
+              value={zip}
+              onChange={(e) => setZip(e.target.value)}
+            />
+            <input
+              className="card__element mb-1"
+              style={{ padding: "0.8rem" }}
+              placeholder="Country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+            />
+            <p style={{ fontWeight: "bold", marginBottom: "1rem" }}>
+              Credit Card
+            </p>
+            {!!error && (
+              <p style={{ marginBottom: "1rem", color: "red" }}>{error}</p>
+            )}
+            <CardSection />
 
-            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-              <div style={{display: "flex", gap: "0.25rem", marginTop: "0.5rem"}}>
-                <img src={Dankort} style={{height: 25}}/>
-                <img src={Visa} style={{height: 25}}/>
-                <img src={Maestro} style={{height: 25}}/>
-                <img src={Mastercard} style={{height: 25}}/>
-              </div>
-              <img src={StripePurple} style={{height: 25}}/>
-            </div>
-            <div style={{marginTop: "1.5rem"}}>
-              <UI.Button
-                primary
-                type="submit"
-                disabled={!total}
-                loading={submitting}
-              >
-                Betal
-              </UI.Button>
-            </div>
+            <PrimaryButton
+              primary
+              type="submit"
+              disabled={!total || submitting}
+            >
+              {submitting && <i className="fas fa-spinner fa-spin" />}
+              Pay Now
+            </PrimaryButton>
           </>
         ) : (
-          <div className="flex justify-center flex-col items-center">
-            <h2 className="mb-4 text-lg">Betalingen blev gennemført</h2>
-            <div>
-              <Checkmark/>
-            </div>
-          </div>
+          <PaymentSuccess>
+            <Checkmark />
+          </PaymentSuccess>
         )}
       </Form>
-    </React.Fragment>
+    </div>
   );
 };
 

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Console\Commands\PopulateOrders;
+use App\Console\Commands\PopulateReviews;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -49,7 +51,7 @@ class DataSeeder extends Seeder
             DB::table('products')->insert([
                 'name' => $faker->lexify('prod-????'),
                 'description' => $faker->text,
-                'image' => $faker->imageUrl(640, 480, 'cats', true, 'Faker'),
+                "long_description" => $faker->text,
                 'price' => $faker->numberBetween(100, 1000),
                 'stock' => $faker->numberBetween(0, 100),
                 'category_id' => $faker->numberBetween(1, 10),
@@ -57,6 +59,17 @@ class DataSeeder extends Seeder
                 "created_at" => Carbon::now(),
                 "updated_at" => Carbon::now(),
             ]);
+
+            // Create 5 product images
+
+            for ($j = 0; $j < 5; $j++) {
+                DB::table('product_images')->insert([
+                    'file_path' => $faker->imageUrl(640, 480, 'prod', true, 'Image'),
+                    'product_id' => $i + 1,
+                    "created_at" => Carbon::now(),
+                    "updated_at" => Carbon::now(),
+                ]);
+            }
         }
 
         // Create 20 best sellers
@@ -92,9 +105,18 @@ class DataSeeder extends Seeder
             DB::table('property_fields')->insert([
                 'name' => $faker->lexify('field-????'),
                 'property_id' => $faker->numberBetween(1, 600),
+                "type" => $faker->randomElement(['subtractive', 'additive', '']),
+                "adjusted_price" => $faker->numberBetween(0, 100),
+                "stock" => $faker->numberBetween(0, 100),
                 "created_at" => Carbon::now(),
                 "updated_at" => Carbon::now(),
             ]);
         }
+
+        $command = new PopulateReviews();
+        $command->handle();
+
+        $command = new PopulateOrders();
+        $command->handle();
     }
 }

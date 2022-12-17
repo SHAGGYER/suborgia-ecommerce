@@ -8,6 +8,10 @@ import Rating from "../components/Rating";
 import PrimaryButton from "../components/UI/PrimaryButton";
 import Skeleton from "react-loading-skeleton";
 import CartService from "../services/CartService";
+import ProductProperties from "../components/products/ProductProperties";
+import cogoToast from "cogo-toast";
+import { Wrapper } from "../components/Wrapper";
+import Reviews from "../components/Reviews";
 
 const ContentStyled = styled.div`
   margin-top: 3rem;
@@ -23,15 +27,14 @@ const ContentStyled = styled.div`
   }
 
   .title {
-    margin-bottom: 1.5rem;
-
+    margin-bottom: 2rem;
     h3 {
       font-size: 30px;
     }
 
     h2 {
       font-size: 40px;
-      margin-bottom: 3rem;
+      margin-bottom: 1rem;
     }
   }
 
@@ -43,24 +46,6 @@ const ContentStyled = styled.div`
     display: flex;
     position: relative;
   }
-
-  .properties {
-    .property {
-      margin-bottom: 2rem;
-      h3 {
-        font-size: 20px;
-        margin-bottom: 1rem;
-      }
-      .fields {
-        display: flex;
-        gap: 1rem;
-      }
-      .field {
-        border: 2px solid #efefef;
-        padding: 1rem;
-      }
-    }
-  }
 `;
 
 export default function ProductDetail() {
@@ -68,6 +53,12 @@ export default function ProductDetail() {
   const [product, setProduct] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [quantity, setQuantity] = React.useState(1);
+  const [selectedProperities, setSelectedProperities] = React.useState({});
+  const [addToCartLoading, setAddToCartLoading] = React.useState(false);
+  const [outOfStock, setOutOfStock] = React.useState(false);
+  const [stockCollection, setStockCollection] = React.useState(null);
+
+  const { price } = CartService.getPrice(product, selectedProperities);
 
   React.useEffect(() => {
     getProduct();
@@ -80,141 +71,144 @@ export default function ProductDetail() {
     setLoading(false);
   };
 
+  const handleAddToCart = async () => {
+    setAddToCartLoading(true);
+
+    await CartService.addToCart(
+      product.id,
+      price,
+      quantity,
+      selectedProperities,
+      stockCollection?.collectionId
+    );
+    setAddToCartLoading(false);
+    cogoToast.success("Product added to cart");
+  };
+
   return (
     <Page>
-      <ContentStyled>
-        <div>
-          {loading ? (
-            <Skeleton height={500} width={400} />
-          ) : (
-            <ImageSlider
-              height={"500px"}
-              items={[
-                <article className="image-container">
-                  <img src="/assets/images/img-3.jpg" alt="product image" />
-                </article>,
-                <article className="image-container">
-                  <img src="/assets/images/img-3.jpg" alt="product image" />
-                </article>,
-                <article className="image-container">
-                  <img src="/assets/images/img-3.jpg" alt="product image" />
-                </article>,
-                <article className="image-container">
-                  <img src="/assets/images/img-3.jpg" alt="product image" />
-                </article>,
-                <article className="image-container">
-                  <img src="/assets/images/img-3.jpg" alt="product image" />
-                </article>,
-              ]}
-            />
-          )}
-        </div>
-        <div>
-          <div className="rating">
+      <Wrapper>
+        <ContentStyled>
+          <div>
             {loading ? (
-              <Skeleton height={30} width={250} />
+              <Skeleton height={500} width={400} />
             ) : (
-              <>
-                <Rating rating={4} />
-                <span>5 reviews</span>
-              </>
-            )}
-          </div>
-
-          <div className="title">
-            {loading ? (
-              <Skeleton height={30} width={200} />
-            ) : (
-              <h3>{product?.name}</h3>
-            )}
-            {loading ? (
-              <Skeleton
-                height={50}
-                width={200}
-                style={{ marginBottom: "2rem" }}
+              <ImageSlider
+                height={"500px"}
+                items={product?.images.map((image) => (
+                  <img
+                    key={image.id}
+                    src={image?.file_path}
+                    alt="product image"
+                  />
+                ))}
               />
-            ) : (
-              <h2>${product?.price}</h2>
-            )}
-            {loading ? (
-              <Skeleton height={30} width={200} />
-            ) : (
-              <PrimaryButton
-                onClick={() => CartService.addToCart(product, quantity)}
-              >
-                <i className="fa-solid fa-shopping-cart"></i>
-                Add to cart
-              </PrimaryButton>
             )}
           </div>
-
-          <div className="description">
-            {loading ? (
-              <Skeleton height={70} width={"100%"} />
-            ) : (
-              <p>{product?.description}</p>
-            )}
-          </div>
-
-          {loading ? (
-            <div style={{ marginBottom: "2rem" }}>
-              <Skeleton height={30} width={200} />
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                <Skeleton height={30} width={100} />
-                <Skeleton height={30} width={100} />
-                <Skeleton height={30} width={100} />
-              </div>
-
-              <Skeleton height={30} width={200} />
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                <Skeleton height={30} width={100} />
-                <Skeleton height={30} width={100} />
-                <Skeleton height={30} width={100} />
-              </div>
-
-              <Skeleton height={30} width={200} />
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                <Skeleton height={30} width={100} />
-                <Skeleton height={30} width={100} />
-                <Skeleton height={30} width={100} />
-              </div>
+          <div>
+            <div className="rating">
+              {loading ? (
+                <Skeleton height={30} width={250} />
+              ) : (
+                <>
+                  <Rating rating={product.rating} />
+                  <span>{product.reviews_count} reviews</span>
+                </>
+              )}
             </div>
-          ) : (
-            <div className="properties">
-              {product?.properties?.map((property) => (
-                <div className="property" key={property.id}>
-                  <article>
-                    <h3>{property.name}</h3>
-                    <div className="fields">
-                      {property.fields?.map((field) => (
-                        <div key={field.id} className="field">
-                          <span>{field.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
+
+            <div className="title">
+              {loading ? (
+                <Skeleton height={30} width={200} />
+              ) : (
+                <h3>{product?.name}</h3>
+              )}
+              {loading ? (
+                <Skeleton
+                  height={50}
+                  width={200}
+                  style={{ marginBottom: "2rem" }}
+                />
+              ) : (
+                <h2>${price}</h2>
+              )}
+              <div className="description">
+                {loading ? (
+                  <Skeleton height={70} width={"100%"} />
+                ) : (
+                  <p>{product?.description}</p>
+                )}
+              </div>
+              {loading ? (
+                <Skeleton height={30} width={200} />
+              ) : (
+                <PrimaryButton
+                  disabled={addToCartLoading || outOfStock}
+                  onClick={() => handleAddToCart()}
+                >
+                  {addToCartLoading ? (
+                    <i className="fas fa-spinner fa-spin"></i>
+                  ) : (
+                    <i className="fa-solid fa-shopping-cart"></i>
+                  )}
+                  Add to cart
+                </PrimaryButton>
+              )}
+            </div>
+
+            {loading ? (
+              <div style={{ marginBottom: "2rem" }}>
+                <Skeleton height={30} width={200} />
+                <div
+                  style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}
+                >
+                  <Skeleton height={30} width={100} />
+                  <Skeleton height={30} width={100} />
+                  <Skeleton height={30} width={100} />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </ContentStyled>
-      {loading ? (
-        <Skeleton height={500} width={"100%"} />
-      ) : (
-        <p style={{ fontSize: 20, lineHeight: 1.6 }}>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laborum
-          ratione veritatis laboriosam quam fugiat et officiis, possimus quo
-          omnis repellendus. Dolor, debitis? Dolores nulla quis impedit ut autem
-          repellat ullam, expedita eaque aperiam perspiciatis, asperiores
-          provident corrupti harum minima quibusdam fuga ex debitis voluptas
-          obcaecati maxime, architecto id. Deserunt nisi harum ea ipsam et.
-          Error ipsa sed, asperiores eveniet odit consequatur quam voluptatibus
-          debitis similique dolorum, labore maxime tenetur quaerat possimus
-          praesentium delectus qui voluptates consequuntur officiis alias
-          perspiciatis omnis incidunt iusto dolores.
-        </p>
-      )}
+
+                <Skeleton height={30} width={200} />
+                <div
+                  style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}
+                >
+                  <Skeleton height={30} width={100} />
+                  <Skeleton height={30} width={100} />
+                  <Skeleton height={30} width={100} />
+                </div>
+
+                <Skeleton height={30} width={200} />
+                <div
+                  style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}
+                >
+                  <Skeleton height={30} width={100} />
+                  <Skeleton height={30} width={100} />
+                  <Skeleton height={30} width={100} />
+                </div>
+              </div>
+            ) : (
+              <ProductProperties
+                getOutOfStock={(outOfStock) => setOutOfStock(outOfStock)}
+                stockCollections={product?.stock_collections}
+                properties={product?.properties}
+                onChange={({ properties, stockCollection }) => {
+                  setSelectedProperities(properties);
+                  setStockCollection(stockCollection);
+                }}
+              />
+            )}
+          </div>
+        </ContentStyled>
+        {loading ? (
+          <Skeleton height={500} width={"100%"} />
+        ) : (
+          <p
+            dangerouslySetInnerHTML={{ __html: product?.long_description }}
+            style={{ lineHeight: 2, marginTop: "3rem" }}
+          ></p>
+        )}
+
+        {product && <Reviews product={product} />}
+      </Wrapper>
     </Page>
   );
 }

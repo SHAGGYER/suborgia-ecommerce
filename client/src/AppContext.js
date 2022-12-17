@@ -11,6 +11,8 @@ const AppContext = createContext({
   appSettings: null,
   setAppSettings: () => null,
   socket: null,
+  registeredSuccessfully: false,
+  setRegisteredSuccessfully: () => null,
 });
 
 export default AppContext;

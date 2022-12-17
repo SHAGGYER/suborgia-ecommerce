@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class PropertyField extends Model
 {
     use HasFactory;
+
+    public function property()
+    {
+        return $this->belongsTo(ProductProperty::class);
+    }
 }

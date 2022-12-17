@@ -2,12 +2,11 @@ import React from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  overflow-y: auto;
+  overflow-y: hidden;
   height: 100%;
   flex: 1;
   position: relative;
   background-color: ${(props) => (props.color ? props.color : "white")};
-  padding: 1rem 1rem 1rem;
   max-width: ${(props) => (props.maxWidth ? props.maxWidth : "100%")};
 `;
 

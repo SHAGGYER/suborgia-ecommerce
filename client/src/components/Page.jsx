@@ -2,9 +2,11 @@ import React from "react";
 import styled from "styled-components";
 
 const Page = styled.div`
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3rem 0 8rem;
+  padding: 2rem 1rem;
+  background-color: #f1f5f9;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
 
   @media (max-width: 1100px) {
     padding: 1rem;

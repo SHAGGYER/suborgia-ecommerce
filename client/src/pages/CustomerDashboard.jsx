@@ -10,6 +10,8 @@ import PriceFilter from "../components/products/PriceFilter";
 import Featured from "../components/products/Featured";
 import Banner from "../components/products/Banner";
 import Slider from "../components/Slider";
+import Skeleton from "react-loading-skeleton";
+import { Wrapper } from "../components/Wrapper";
 
 const ContentStyled = styled.div`
   display: grid;
@@ -35,6 +37,10 @@ const FilterStyled = styled.div`
     font-size: 20px;
     margin-bottom: 1rem;
   }
+
+  .loading {
+    width: 100%;
+  }
 `;
 
 const MenuStyled = styled.div`
@@ -48,7 +54,7 @@ const MenuStyled = styled.div`
   margin-bottom: 1rem;
 `;
 
-const Wrapper = styled.article`
+const DashboardWrapper = styled.article`
   margin-top: 2rem;
   margin-bottom: 1rem;
   display: grid;
@@ -67,6 +73,7 @@ const Wrapper = styled.article`
 `;
 
 function CustomerDashboard(props) {
+  const history = useHistory();
   const { categoryTitle, brand } = useParams();
   const [categories, setCategories] = useState([]);
   const [currentCategory, setCurrentCategory] = useState(null);
@@ -74,9 +81,9 @@ function CustomerDashboard(props) {
   const [brands, setBrands] = useState([]);
   const [products, setProducts] = useState([]);
   const [currentQuery, setCurrentQuery] = useState("");
-  const [bestSellers, setBestSellers] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
-  const [brandsLoading, setBrandsLoading] = useState(false);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [banners, setBanners] = useState([]);
 
   useEffect(() => {
     if (categoryTitle) {
@@ -91,7 +98,10 @@ function CustomerDashboard(props) {
   }, [brand]);
 
   useEffect(() => {
+    getProducts({ brand, category: categoryTitle, brands, categories });
+
     getCategories();
+    getRandomBanners();
   }, []);
 
   const getCategories = async () => {
@@ -112,20 +122,20 @@ function CustomerDashboard(props) {
     const brandObj = getBrandByName(brand, brands);
     const categoryObj = getCategoryByName(category, categories);
 
-    console.log(brandObj, categoryObj);
-
     let query = "";
 
     if (brandObj) {
       query += "?brand=" + brandObj?.id;
-    } else {
+    } else if (categoryObj) {
       query += "?category=" + categoryObj?.id;
     }
 
     setCurrentQuery(query);
 
+    setProductsLoading(true);
     const { data } = await HttpClient().get("/api/filters/products" + query);
-    setProducts(data);
+    setProducts(data.data);
+    setProductsLoading(false);
   };
 
   const isCurrentCategory = (category) => {
@@ -178,85 +188,131 @@ function CustomerDashboard(props) {
     setProducts(data);
   };
 
+  const getRandomBanners = async () => {
+    const { data } = await HttpClient().get("/api/banners/random?count=2");
+    setBanners(data.content);
+  };
+
   return (
     <Page>
-      <Slider
-        height={400}
-        items={[
-          <img
-            src={`http://via.placeholder.com/728x400`}
-            alt="banner"
-            style={{ width: "100%", height: "100%" }}
-          />,
-          <img
-            src={`http://via.placeholder.com/728x400`}
-            alt="banner"
-            style={{ width: "100%", height: "100%" }}
-          />,
-          <img
-            src={`http://via.placeholder.com/728x400`}
-            alt="banner"
-            style={{ width: "100%", height: "100%" }}
-          />,
-        ]}
-      />
       <Wrapper>
-        <article>
-          <MenuStyled>
-            <FilterStyled>
-              <h3>Categories</h3>
-              {categoriesLoading && <i className="fas fa-spinner fa-spin" />}
-              {categories.map((category, index) => (
-                <Filter
-                  key={index}
-                  title={category.name}
-                  category={category.name}
-                  filter="categories"
-                  checked={isCurrentCategory(category.name)}
-                  onClick={() =>
-                    onCategoryClick({ category: category.name, categories })
-                  }
-                />
-              ))}
-            </FilterStyled>
-            <FilterStyled>
-              <h3>Brands</h3>
-              {categoriesLoading && <i className="fas fa-spinner fa-spin" />}
+        <Slider
+          height={400}
+          items={[
+            <img
+              src={`http://via.placeholder.com/728x400`}
+              alt="banner"
+              style={{ width: "100%", height: "100%" }}
+            />,
+            <img
+              src={`http://via.placeholder.com/728x400`}
+              alt="banner"
+              style={{ width: "100%", height: "100%" }}
+            />,
+            <img
+              src={`http://via.placeholder.com/728x400`}
+              alt="banner"
+              style={{ width: "100%", height: "100%" }}
+            />,
+          ]}
+        />
+        <DashboardWrapper>
+          <article>
+            <MenuStyled>
+              <FilterStyled>
+                <h3>Categories</h3>
+                {categoriesLoading && (
+                  <article className="loading" style={{ width: "100%" }}>
+                    {Array(10)
+                      .fill(0)
+                      .map((_, index) => (
+                        <Skeleton key={index} width={"100%"} height={50} />
+                      ))}
+                  </article>
+                )}
+                {categories.map((category, index) => (
+                  <Filter
+                    key={index}
+                    title={category.name}
+                    category={category.name}
+                    filter="categories"
+                    checked={isCurrentCategory(category.name)}
+                    onClick={() =>
+                      onCategoryClick({ category: category.name, categories })
+                    }
+                  />
+                ))}
+              </FilterStyled>
+              <FilterStyled>
+                <h3>Brands</h3>
+                {categoriesLoading && (
+                  <article className="loading" style={{ width: "100%" }}>
+                    {Array(10)
+                      .fill(0)
+                      .map((_, index) => (
+                        <Skeleton key={index} width={"100%"} height={50} />
+                      ))}
+                  </article>
+                )}
 
-              {brands.map((brand, index) => (
-                <Filter
-                  key={index}
-                  title={brand.name}
-                  brand={brand.name}
-                  category={currentCategory}
-                  checked={isCurrentBrand(brand.name)}
-                  onClick={() =>
-                    onBrandClick({
-                      brand: brand.name,
-                      category: currentCategory,
-                      categories,
-                    })
-                  }
-                />
-              ))}
-            </FilterStyled>
-          </MenuStyled>
-          <PriceFilter onApply={onPriceFilter} />
-          <BestSellers />
-        </article>
-        <div>
-          <ContentStyled>
-            {products.map((product, index) => (
-              <Product key={index} product={product} />
-            ))}
-          </ContentStyled>
+                {brands.map((brand, index) => (
+                  <Filter
+                    key={index}
+                    title={brand.name}
+                    brand={brand.name}
+                    category={currentCategory}
+                    checked={isCurrentBrand(brand.name)}
+                    onClick={() =>
+                      onBrandClick({
+                        brand: brand.name,
+                        category: currentCategory,
+                        categories,
+                      })
+                    }
+                  />
+                ))}
+              </FilterStyled>
+            </MenuStyled>
+            <PriceFilter onApply={onPriceFilter} />
+            <BestSellers />
+          </article>
+          <div>
+            {productsLoading ? (
+              <ContentStyled>
+                {Array(10)
+                  .fill(0)
+                  .map((_, index) => (
+                    <Product key={index} loading={true} />
+                  ))}
+              </ContentStyled>
+            ) : (
+              <ContentStyled>
+                {products.map((product, index) => (
+                  <Product key={index} product={product} />
+                ))}
+              </ContentStyled>
+            )}
+          </div>
+        </DashboardWrapper>
+
+        {/* Banners */}
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+          {banners.map((banner, index) => (
+            <Banner
+              onClick={() =>
+                banner.product_id
+                  ? history.push(`/products/${banner.product_id}`)
+                  : null
+              }
+              key={index}
+              image={`${banner.file_path}`}
+            />
+          ))}
         </div>
+
+        {/* Featured */}
+        <Featured />
       </Wrapper>
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-        <Banner image={`/assets/images/banner_1.jpg`} />
-        <Banner image={`http://via.placeholder.com/728x250`} />
-      </div>
-      <Featured />
     </Page>
   );
 }

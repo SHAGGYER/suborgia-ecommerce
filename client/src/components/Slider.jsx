@@ -1,7 +1,6 @@
 import React from "react";
 import { useEffect } from "react";
 import styled from "styled-components";
-import Product from "./products/Product";
 
 const SliderStyled = styled.div`
   width: 100%;
@@ -45,24 +44,18 @@ const SliderStyled = styled.div`
 `;
 
 const ImageSliderStyled = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  margin-top: 1rem;
 
   img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
 `;
 
-export const ImageSlider = ({
-  items,
-  height,
-  onNextSlide,
-  onPrevSlide,
-  onItemsChange,
-}) => {
+export const ImageSlider = ({ items, height, onNextSlide, onPrevSlide }) => {
   const [current, setCurrent] = React.useState(0);
 
   useEffect(() => {
@@ -92,10 +85,6 @@ export const ImageSlider = ({
     return () => clearInterval(interval);
   }, [current]);
 
-  const isInRangeBefore = (index) => {
-    return index === current - 1;
-  };
-
   return (
     <section>
       <SliderStyled style={{ height }}>
@@ -104,33 +93,30 @@ export const ImageSlider = ({
             key={index}
             className={index < current ? "prev" : index > current ? "next" : ""}
           >
-            <div style={{ width: 400, height: 400 }}>{item}</div>
+            <div style={{ width: 400, height: 500 }}>{item}</div>
           </div>
         ))}
       </SliderStyled>
-      <SliderStyled>
-        <div className="item">
-          {items.map((item, index) => (
-            <div
-              key={index}
-              data-index={index + " " + current}
-              className={
-                "item " + current - 1 === index
-                  ? ""
-                  : index < current - 1
-                  ? "prev"
-                  : index > current + 1 === index
-                  ? ""
-                  : index > current + 1
-                  ? "next"
-                  : ""
-              }
-            >
-              <div>{item}</div>
-            </div>
-          ))}
-        </div>
-      </SliderStyled>
+      <ImageSliderStyled>
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className={
+              "item " + current - 1 === index
+                ? ""
+                : index <= current - 1
+                ? "prev"
+                : index > current + 1 === index
+                ? ""
+                : index > current + 2
+                ? "next"
+                : ""
+            }
+          >
+            <div>{item}</div>
+          </div>
+        ))}
+      </ImageSliderStyled>
     </section>
   );
 };

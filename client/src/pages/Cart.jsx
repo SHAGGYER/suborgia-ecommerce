@@ -4,46 +4,19 @@ import HttpClient from "../services/HttpClient";
 import Skeleton from "react-loading-skeleton";
 import styled from "styled-components";
 import PrimaryButton from "../components/UI/PrimaryButton";
+import cogoToast from "cogo-toast";
+import { useHistory } from "react-router-dom";
+import CartService from "../services/CartService";
+import CartItem, {
+  CartItemFooter,
+  CartItemHeader,
+} from "../components/products/CartItem";
+import { Container } from "../components/Container";
+import { Wrapper } from "../components/Wrapper";
 
 const CartEmpty = styled.div`
   text-align: center;
   font-size: 30px;
-`;
-
-const CartItem = styled.div`
-  display: grid;
-  grid-template-columns: 200px 200px 200px 200px 1fr 50px;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  border: 1px solid #efefef;
-  align-items: center;
-
-  img {
-    width: 100%;
-  }
-
-  .quantity {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-
-    input {
-      padding: 1rem;
-      width: 100px;
-    }
-  }
-
-  .remove {
-    cursor: pointer;
-    border: 1px solid #efefef;
-    padding: 1rem;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 `;
 
 const Summary = styled.div`
@@ -57,7 +30,7 @@ const Summary = styled.div`
   margin-bottom: 1rem;
 
   .total {
-    font-size: 20px;
+    font-size: 40px;
     font-weight: bold;
     text-align: right;
   }
@@ -66,12 +39,14 @@ const Summary = styled.div`
 const TAX = 25;
 
 export default function Cart() {
+  const history = useHistory();
   const [cart, setCart] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [items, setItems] = React.useState([]);
-  const [loadingRemove, setLoadingRemove] = React.useState(false);
   const [loadingUpdate, setLoadingUpdate] = React.useState(false);
-  const [loadingRemoveItems, setLoadingRemoveItems] = React.useState([]);
+  const [error, setError] = React.useState(null);
+  const [outOfStockItemIds, setOutOfStockItemIds] = React.useState([]);
+  const [outOfStockItemNames, setOutOfStockItemNames] = React.useState([]);
 
   React.useEffect(() => {
     getCart();
@@ -81,143 +56,144 @@ export default function Cart() {
     setLoading(true);
     const cartId = localStorage.getItem("cartId");
     const { data } = await HttpClient().get(`/api/cart/${cartId}`);
+
+    if (!data.content.cart) {
+      setLoading(false);
+      localStorage.setItem("cartId", null);
+      return;
+    }
+
     setCart(data.content.cart);
     setItems(data.content.cart?.items);
+    setOutOfStockItemIds(data.content.stock.ids);
+    setOutOfStockItemNames(data.content.stock.names);
     setLoading(false);
-  };
-
-  const updateQuantity = (index, value) => {
-    const newItems = [...items];
-    newItems[index].quantity = value;
-    setItems(newItems);
-  };
-
-  const getItemTotal = (item) => {
-    return item.quantity * item.product.price;
-  };
-
-  const removeItem = async (index) => {
-    try {
-      setLoadingRemoveItems((prev) => [...prev, index]);
-      const { data } = await HttpClient().delete(
-        `/api/cart/cart-items/${items[index].id}`
-      );
-      setItems(data.content.items);
-      setLoadingRemoveItems((prev) => prev.filter((i) => i !== index));
-    } catch (e) {
-      console.log(e);
-      setLoadingRemoveItems((prev) => prev.filter((i) => i !== index));
-    }
-  };
-
-  const isLoadingRemoveItem = (index) => {
-    return loadingRemoveItems.includes(index);
   };
 
   const isCartEmpty = () => {
     return items.length === 0;
   };
 
-  const calculateSubtotal = () => {
-    let total = 0;
-    items.forEach((item) => {
-      total += getItemTotal(item);
-    });
-    return total;
-  };
-
   const updateCart = async () => {
     try {
+      setError(null);
       setLoadingUpdate(true);
       const { data } = await HttpClient().put(`/api/cart/${cart.id}`, {
         items,
       });
       setItems(data.content.items);
+      setOutOfStockItemIds(data.content.stock.ids);
+      setOutOfStockItemNames(data.content.stock.names);
       setLoadingUpdate(false);
+      cogoToast.success("Cart updated");
     } catch (e) {
       console.log(e);
+      setError(e?.response?.data?.error);
       setLoadingUpdate(false);
     }
   };
 
-  const calculateTax = () => {
-    return ((calculateSubtotal() * TAX) / 100).toFixed(2);
-  };
-
-  const calculateTotal = () => {
-    return (calculateSubtotal() + Number(calculateTax())).toFixed(2);
-  };
-
   return (
     <Page>
-      {loading ? (
-        <>
-          <Skeleton height={250} width={"100%"} />
-        </>
-      ) : (
-        <>
-          {isCartEmpty() ? (
-            <CartEmpty>Your cart is empty</CartEmpty>
-          ) : (
-            <div>
-              <CartItem>
-                <div></div>
-                <div>Product</div>
-                <div>Price</div>
-                <div>Quantity</div>
-                <div>Total</div>
-                <div></div>
-              </CartItem>
-              {items?.map((item, index) => (
-                <CartItem key={item.id}>
-                  <img src={item.product?.image} alt="product image" />
-                  <div>
-                    <h3>{item.product?.name}</h3>
-                  </div>
-                  <div className="price">
-                    <span>${item.product?.price}</span>
-                  </div>
-                  <div className="quantity">
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) => updateQuantity(index, e.target.value)}
-                    />
-                  </div>
-                  <div className="total">
-                    <span>{getItemTotal(item)}</span>
-                  </div>
-                  <div className="remove" onClick={() => removeItem(index)}>
-                    {isLoadingRemoveItem(index) ? (
-                      <i className="fas fa-spinner fa-spin"></i>
-                    ) : (
-                      <i className="fas fa-trash"></i>
-                    )}
-                  </div>
-                </CartItem>
-              ))}
-
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <PrimaryButton disabled={loadingUpdate} onClick={updateCart}>
-                  {loadingUpdate && <i className="fas fa-spinner fa-spin"></i>}
-                  Update Cart
-                </PrimaryButton>
-              </div>
-
-              <Summary>
-                <span className="subtotal">
-                  Subtotal: ${calculateSubtotal()}
-                </span>
-                <span className="tax">
-                  Tax ({TAX}%): ${calculateTax()}
-                </span>
-                <span className="total">Total: ${calculateTotal()}</span>
-                <PrimaryButton>Pay Now</PrimaryButton>
-              </Summary>
+      <Wrapper>
+        {loading && (
+          <>
+            <Skeleton height={50} width={"100%"} />
+            <Skeleton height={250} width={"100%"} />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+              }}
+            >
+              <Skeleton height={50} width={200} />
+              <Skeleton height={50} width={200} />
             </div>
-          )}
-        </>
-      )}
+          </>
+        )}
+        {!isCartEmpty() ? (
+          <>
+            {!isCartEmpty() && (
+              <div>
+                {error && (
+                  <div style={{ color: "red", marginBottom: "1rem" }}>
+                    {error}
+                  </div>
+                )}
+                {outOfStockItemIds.length > 0 && (
+                  <div style={{ color: "red", marginBottom: "1rem" }}>
+                    Following products are out of stock:{" "}
+                    {outOfStockItemNames.join(", ")}
+                  </div>
+                )}
+                <CartItemHeader>
+                  <div></div>
+                  <div>Product</div>
+                  <div>Price</div>
+                  <div>Quantity</div>
+                  <div>Total</div>
+                  <div></div>
+                </CartItemHeader>
+                {items?.map((item, index) => (
+                  <CartItem
+                    key={item.id}
+                    outOfStockItems={outOfStockItemIds}
+                    item={item}
+                    onItemChange={(item) => {
+                      const newItems = [...items];
+                      newItems[index] = item;
+                      setItems(newItems);
+                    }}
+                    onCartChange={({ items, stock }) => {
+                      setItems(items);
+                      setOutOfStockItemIds(stock.ids);
+                      setOutOfStockItemNames(stock.names);
+                    }}
+                  />
+                ))}
+                <CartItemFooter>
+                  <div>
+                    <PrimaryButton
+                      disabled={loadingUpdate}
+                      onClick={updateCart}
+                    >
+                      {loadingUpdate && (
+                        <i className="fas fa-spinner fa-spin"></i>
+                      )}
+                      Update Cart
+                    </PrimaryButton>
+                  </div>
+                </CartItemFooter>
+
+                <div
+                  style={{ display: "flex", justifyContent: "flex-end" }}
+                ></div>
+
+                <Summary>
+                  <span className="subtotal">
+                    Subtotal: ${CartService.calculateSubtotal(items).toFixed(2)}
+                  </span>
+                  <span className="tax">
+                    Tax ({TAX}%): ${CartService.calculateTax(items).toFixed(2)}
+                  </span>
+                  <span className="total">
+                    Total: ${CartService.calculateTotal(items).toFixed(2)}
+                  </span>
+                  <PrimaryButton
+                    disabled={!!outOfStockItemIds.length}
+                    onClick={() => history.push("/payment")}
+                  >
+                    To Payment
+                  </PrimaryButton>
+                </Summary>
+              </div>
+            )}
+          </>
+        ) : (
+          !loading && <CartEmpty>Your cart is empty</CartEmpty>
+        )}
+      </Wrapper>
     </Page>
   );
 }

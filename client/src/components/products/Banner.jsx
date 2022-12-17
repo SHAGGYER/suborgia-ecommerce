@@ -33,9 +33,9 @@ const BannerStyled = styled.div`
   }
 `;
 
-export default function Banner({ image }) {
+export default function Banner({ image, onClick }) {
   return (
-    <BannerStyled>
+    <BannerStyled onClick={onClick}>
       <div className="backdrop"></div>
       <img src={image} alt="banner" />
     </BannerStyled>

@@ -8,10 +8,15 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import Product from "./components/products/Product";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
+import Payment from "./pages/Payment";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import RegisterSuccess from "./pages/RegisterSuccess";
 
 function App() {
   const [user, setUser] = useState(null);
   const [initiated, setInitiated] = useState(false);
+  const [registeredSuccessfully, setRegisteredSuccessfully] = useState(false);
 
   useEffect(() => {
     init();
@@ -39,6 +44,8 @@ function App() {
           user,
           setUser,
           logout,
+          registeredSuccessfully,
+          setRegisteredSuccessfully,
         }}
       >
         <Navbar />
@@ -47,8 +54,22 @@ function App() {
             <CustomerDashboard />
           </Route>
 
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/register/success">
+            <RegisterSuccess />
+          </Route>
+          <Route path="/register">
+            <Register />
+          </Route>
+
           <Route path="/cart">
             <Cart />
+          </Route>
+
+          <Route path="/payment">
+            <Payment />
           </Route>
 
           <Route path="/products/:id" exact>

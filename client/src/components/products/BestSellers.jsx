@@ -77,7 +77,7 @@ export default function BestSellers() {
             {bestSellers
               .filter((x, index) => index >= i * 4 && index < i * 4 + 4)
               .map((item, index) => (
-                <Product key={index} product={item} size={100} />
+                <Product key={index} product={item} slim size={100} />
               ))}
           </article>
         );

@@ -12,7 +12,15 @@ import queryString from "query-string";
 import cogoToast from "cogo-toast";
 import Users from "./pages/Users";
 import Settings from "./pages/Settings";
-import Plans from "./pages/Plans";
+import Categories from "./pages/Categories";
+import Products from "./pages/Products";
+import CreateProduct from "./pages/CreateProduct";
+import Coupons from "./pages/Coupons";
+import CreateCoupon from "./pages/CreateCoupon";
+import CreateUpdateStockCollection from "./pages/CreateUpdateStockCollection";
+import Dashboard from "./pages/Dashboard";
+import Analytics from "./pages/Analytics";
+import CreateBanner from "./pages/CreateBanner";
 
 function App() {
   const location = useLocation();
@@ -22,10 +30,9 @@ function App() {
   const [admin, setAdmin] = useState(null);
   const [initiated, setInitiated] = useState(false);
   const [installed, setInstalled] = useState(false);
-  const [isDenmark, setIsDenmark] = useState(false);
   const [plans, setPlans] = useState([]);
-  const [forbiddenDomains, setForbiddenDomains] = useState([]);
   const [appSettings, setAppSettings] = useState(null);
+  const [currentHelp, setCurrentHelp] = useState(0);
 
   useEffect(() => {
     init();
@@ -63,6 +70,8 @@ function App() {
           plans,
           appSettings,
           setAppSettings,
+          currentHelp,
+          setCurrentHelp,
         }}
       >
         <>
@@ -72,9 +81,24 @@ function App() {
                 <Sidebar />
                 <Page>
                   <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/coupons/create" element={<CreateCoupon />} />
+                    <Route path="/coupons" element={<Coupons />} />
+                    <Route path="/banners/create" element={<CreateBanner />} />
+
+                    <Route path="/categories" element={<Categories />} />
+                    <Route
+                      path="/products/stock-collection/:id"
+                      element={<CreateUpdateStockCollection />}
+                    />
+                    <Route
+                      path="/products/create"
+                      element={<CreateProduct />}
+                    />
+                    <Route path="/products" element={<Products />} />
                     <Route path="/users" element={<Users />} />
                     <Route path="/settings" element={<Settings />} />
-                    <Route path="/plans" element={<Plans />} />
                   </Routes>
                 </Page>
               </Wrapper>
