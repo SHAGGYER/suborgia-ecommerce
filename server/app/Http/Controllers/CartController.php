@@ -237,6 +237,11 @@ class CartController extends Controller
         );
 
         $cart = Cart::find($request->cartId);
+        if (!$cart) {
+            return response()->json([
+                'error' => "Cart not found. Contact support."
+            ], 400);
+        }
 
         $stock = $this->checkStock($cart);
         if (count($stock["ids"]) > 0) {
@@ -271,7 +276,7 @@ class CartController extends Controller
                 'source' => $request->source["id"],
             ]);
 
-            $order = OrderController::createImpl($request->orderData, $cart->items);
+            $order = OrderController::createImpl($request->orderData, $cart);
             $order = Order::with("items.product")->whereId($order->id)->first();
             Mail::to($request->orderData["email"])->send(new OrderCreated($order));
 

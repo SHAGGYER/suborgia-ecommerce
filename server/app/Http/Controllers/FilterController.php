@@ -33,6 +33,9 @@ class FilterController extends Controller
         // get reviews count
         $product->setAttribute("reviews_count", $product->reviews()->count());
 
+        // get amount of orders in the last 7 days
+        $product->setAttribute("orders_count", $product->ordersItems()->where("created_at", ">=", now()->subDays(7))->count());
+
         return response()->json(["content" => $product]);
     }
 

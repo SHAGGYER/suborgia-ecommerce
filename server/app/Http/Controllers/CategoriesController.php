@@ -7,14 +7,11 @@ use Illuminate\Http\Request;
 
 class CategoriesController extends Controller
 {
-    public function deleteCategories(Request $request)
+    public function delete(Request $request, $id)
     {
-        $ids = $request->input("ids");
-        $categories = Category::whereIn("id", $ids)->get();
-        foreach ($categories as $category) {
-            $category->delete();
-        }
-        return response()->json(["content" => $categories]);
+        $category = Category::find($id);
+        $category->delete();
+        return response()->json(["content" => "ok"], 204);
     }
 
     public function getCategories(Request $request)
@@ -33,6 +30,14 @@ class CategoriesController extends Controller
     public function create(Request $request)
     {
         $category = new Category();
+        $category->name = $request->input("name");
+        $category->save();
+        return response()->json(["content" => $category]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $category = Category::find($id);
         $category->name = $request->input("name");
         $category->save();
         return response()->json(["content" => $category]);

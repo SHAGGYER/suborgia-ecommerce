@@ -10,7 +10,7 @@ import axios from "axios";
 
 window.Pusher = Pusher;
 
-window.Echo = new Echo({
+/* window.Echo = new Echo({
   broadcaster: "pusher",
   cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
   encrypted: true,
@@ -47,7 +47,7 @@ window.Echo = new Echo({
 
 window.Echo.private(`message`).listen("Message", (e) => {
   console.log(e);
-});
+}); */
 
 ReactDOM.render(
   <BrowserRouter>

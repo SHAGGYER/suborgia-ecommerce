@@ -14,13 +14,14 @@ import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import Categories from "./pages/Categories";
 import Products from "./pages/Products";
-import CreateProduct from "./pages/CreateProduct";
 import Coupons from "./pages/Coupons";
-import CreateCoupon from "./pages/CreateCoupon";
 import CreateUpdateStockCollection from "./pages/CreateUpdateStockCollection";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import CreateBanner from "./pages/CreateBanner";
+import Orders from "./pages/Orders";
+import Banners from "./pages/Banners";
+import Brands from "./pages/Brands";
 
 function App() {
   const location = useLocation();
@@ -82,19 +83,16 @@ function App() {
                 <Page>
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
+                    <Route path="/orders" element={<Orders />} />
                     <Route path="/analytics" element={<Analytics />} />
-                    <Route path="/coupons/create" element={<CreateCoupon />} />
+                    <Route path="/brands" element={<Brands />} />
                     <Route path="/coupons" element={<Coupons />} />
                     <Route path="/banners/create" element={<CreateBanner />} />
-
+                    <Route path="/banners" element={<Banners />} />
                     <Route path="/categories" element={<Categories />} />
                     <Route
                       path="/products/stock-collection/:id"
                       element={<CreateUpdateStockCollection />}
-                    />
-                    <Route
-                      path="/products/create"
-                      element={<CreateProduct />}
                     />
                     <Route path="/products" element={<Products />} />
                     <Route path="/users" element={<Users />} />

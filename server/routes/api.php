@@ -4,12 +4,15 @@ use App\Events\Message;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannersController;
+use App\Http\Controllers\BrandsController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\FilterController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\ReviewsController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +42,10 @@ Route::prefix("auth")->group(function () {
         Route::get("init", "init");
         Route::post("login", "login");
         Route::post("register", "register");
+        Route::post("/admin/login", "adminLogin");
+        Route::get("/verify-password-reset-code", "verifyPasswordResetCode");
+        Route::post("/reset-password", "resetPassword");
+        Route::post("/forgot-password", "forgotPassword");
     });
 });
 
@@ -71,7 +78,31 @@ Route::middleware("auth:sanctum")->group(function () {
         Route::controller(CategoriesController::class)->group(function () {
             Route::get("/", "getCategories");
             Route::post("/", "create");
-            Route::post("/delete", "deleteCategories");
+            Route::delete("/{id}", "delete");
+            Route::put("/{id}", "update");
+        });
+    });
+});
+
+Route::middleware("auth:sanctum")->group(function () {
+    Route::prefix("users")->group(function () {
+        Route::controller(UsersController::class)->group(function () {
+            Route::get("/", "search");
+            Route::post("/", "create");
+            Route::post("/{id}", "update");
+            Route::delete("/{id}", "delete");
+            Route::post("/password-reset/{id}", "sendPasswordResetToken");
+        });
+    });
+});
+
+Route::middleware("auth:sanctum")->group(function () {
+    Route::prefix("brands")->group(function () {
+        Route::controller(BrandsController::class)->group(function () {
+            Route::get("/", "search");
+            Route::post("/", "create");
+            Route::put("/{id}", "update");
+            Route::delete("/{id}", "delete");
         });
     });
 });
@@ -83,7 +114,7 @@ Route::middleware("auth:sanctum")->group(function () {
             Route::get("/", "search");
             Route::get("/{id}", "getProduct");
             Route::post("/", "create");
-            Route::post("/delete", "deleteProducts");
+            Route::delete("/{id}", "deleteProduct");
             Route::get("/stock-collections/{id}", "getStockCollections");
             Route::post("/stock-collections/{id}", "updateStockCollection");
             Route::post("/stock-collections", "createStockCollection");
@@ -98,6 +129,8 @@ Route::prefix("banners")->group(function () {
     Route::controller(BannersController::class)->group(function () {
         Route::post("/", "createBanner");
         Route::get("/random", "getRandomBanners");
+        Route::get("/", "search");
+        Route::post("/delete", "deleteBannersWithIds");
     });
 });
 
@@ -106,7 +139,8 @@ Route::middleware("auth:sanctum")->group(function () {
         Route::controller(CouponController::class)->group(function () {
             Route::get("/", "search");
             Route::post("/", "create");
-            Route::post("/delete", "deleteCouponsWithIds");
+            Route::delete("/{id}", "delete");
+            Route::put("/{id}", "update");
         });
     });
 });
@@ -127,8 +161,10 @@ Route::prefix("reviews")->group(function () {
 });
 
 Route::prefix("orders")->group(function () {
-    Route::controller(OrdersController::class)->group(function () {
+    Route::controller(OrderController::class)->group(function () {
+        Route::get("/{id}", "getOrder");
         Route::get("/", "search");
+
         Route::put("/{id}", "update");
         Route::post("/delete", "deleteOrders");
     });

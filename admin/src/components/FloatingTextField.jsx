@@ -11,7 +11,6 @@ const FloatingTextFieldStyled = styled.div`
   &.field {
     width: 100%;
     position: relative;
-    margin-bottom: 1rem;
   }
 
   label,
@@ -62,11 +61,11 @@ const FloatingTextFieldStyled = styled.div`
   }
 `;
 
-function FloatingTextField({ label, onChange, value, type, error }) {
+function FloatingTextField({ label, onChange, value, type, error, ...props }) {
   const uuid = useId();
 
   return (
-    <FloatingTextFieldStyled className="field">
+    <FloatingTextFieldStyled className="field" {...props}>
       <input
         id={uuid}
         type={type}

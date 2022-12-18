@@ -144,6 +144,7 @@ const ProductStyled = styled.div`
 
     .wrapper {
       margin-bottom: 1rem;
+      width: 100%;
     }
 
     .quick-view {
@@ -238,7 +239,11 @@ export default function Product({ product, loading, slim }) {
           </h3>
           <p className="price">
             ${product?.price}
-            {product?.oldPrice ? <s>${product.oldPrice}</s> : ""}
+            {product?.base_price && product?.base_price > product?.price ? (
+              <s>${product.base_price}</s>
+            ) : (
+              ""
+            )}
           </p>
         </ProductStyled>
       )}

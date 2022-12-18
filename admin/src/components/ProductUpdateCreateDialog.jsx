@@ -8,6 +8,9 @@ import ResourceBrowser from "../components/ResourceBrowser";
 import { CustomDialog, useDialog } from "react-st-modal";
 import PrimaryButton from "./UI/PrimaryButton";
 import JoditEditor from "jodit-react";
+import Autocomplete from "./Autocomplete";
+import SaveButton from "./SaveButton";
+import cogoToast from "cogo-toast";
 
 const FieldDialog = ({ field }) => {
   const [usedField, setUsedField] = useState(field);
@@ -203,25 +206,32 @@ const CreateDialogStyled = styled.div`
   }
 `;
 
-export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
-  const dialog = useDialog();
-
-  const [name, setName] = React.useState(product ? product.name : "");
+export const ProductUpdateCreateDialog = ({
+  row,
+  onCreated,
+  onUpdated,
+  onDeleted,
+  onClose,
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = React.useState(row ? row.name : "");
   const [description, setDescription] = React.useState(
-    product ? product.description : ""
+    row ? row.description : ""
   );
   const [longDescription, setLongDescription] = React.useState(
-    product ? product.long_description : ""
+    row ? row.long_description : ""
   );
-  const [price, setPrice] = React.useState(product ? product.price : "");
-  const [stock, setStock] = React.useState(product ? product.stock : "");
-  const [images, setImages] = React.useState(product ? product.images : []);
-  const [properties, setProperties] = React.useState(
-    product ? product.properties : []
-  );
+  const [price, setPrice] = React.useState(row ? row.price : "");
+  const [buyPrice, setBuyPrice] = React.useState(row ? row.buy_price : "");
+  const [basePrice, setBasePrice] = React.useState(row ? row.base_price : "");
+  const [stock, setStock] = React.useState(row ? row.stock : "");
+  const [images, setImages] = React.useState(row ? row.images : []);
+  const [properties, setProperties] = React.useState(row ? row.properties : []);
   const [newProperty, setNewProperty] = React.useState("");
   const [newFields, setNewFields] = React.useState([]);
-  const [category, setCategory] = useState(product ? product.category : null);
+  const [category, setCategory] = useState(row ? row.category : null);
+  const [brand, setBrand] = useState(row ? row.brand : null);
+  const [error, setError] = useState(null);
 
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
@@ -279,7 +289,8 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
   };
 
   const handleFileChange = (e) => {
-    setImages(Array.prototype.slice.call(e.target.files));
+    const files = Array.from(e.target.files);
+    setImages(files);
   };
 
   const handleAddField = (e, propertyIndex) => {
@@ -297,6 +308,9 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
 
   const addProperty = (e) => {
     e.preventDefault();
+
+    if (!newProperty) return;
+
     setProperties([
       ...properties,
       {
@@ -333,29 +347,69 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
     setProperties(newProperties);
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (close = false) => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", price);
+    formData.append("buy_price", buyPrice);
+    formData.append("base_price", basePrice);
     formData.append("stock", stock);
-    for (let image of images) {
-      formData.append("images[]", image);
+    if (images?.length > 0) {
+      for (let image of images) {
+        formData.append("images[]", image);
+      }
     }
-    formData.append("category_id", category.id);
+    if (category) {
+      formData.append("category", category?.id);
+    }
+    if (brand) {
+      formData.append("brand", brand?.id);
+    }
     formData.append("long_description", longDescription);
     formData.append("properties", JSON.stringify(properties));
 
-    if (product) {
-      await HttpClient().post(`/api/products/${product.id}`, formData);
-      dialog.close(true);
-    } else {
-      await HttpClient().post("/api/products", formData);
-      if (onCreated) {
-        onCreated();
+    try {
+      if (row?.id) {
+        setLoading(true);
+
+        const { data } = await HttpClient().post(
+          `/api/products/${row.id}`,
+          formData
+        );
+        onUpdated(data.content);
+        close && onClose();
       } else {
-        window.location = "/products";
+        setLoading(true);
+
+        const { data } = await HttpClient().post("/api/products", formData);
+        if (onCreated) {
+          onCreated(data.content);
+          close && onClose();
+        } else {
+          window.location = "/products";
+        }
       }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      setError(error?.response?.data?.errors);
+      console.log(error);
+    }
+  };
+
+  const handleOnDelete = async () => {
+    try {
+      setLoading(true);
+      await HttpClient().delete(`/api/products/${row.id}`);
+      onDeleted();
+      onClose();
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      setError(error?.response?.data?.errors);
+      cogoToast.error(error?.response?.data?.message);
+      console.log(error);
     }
   };
 
@@ -364,10 +418,10 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
       <section className="content">
         <article>
           <div className="image-container">
-            {images.length > 0 && (
+            {currentImageIndex >= 0 && images?.length > 0 && (
               <img
                 src={
-                  product
+                  images?.length > 0 && row?.id
                     ? images[currentImageIndex].file_path
                     : URL.createObjectURL(images[currentImageIndex])
                 }
@@ -384,12 +438,12 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
                 }
               />
               <span>
-                {currentImageIndex + 1} of {images.length}
+                {currentImageIndex + 1} of {images ? images?.length : 0}
               </span>
               <i
                 onClick={() =>
                   setCurrentImageIndex(
-                    currentImageIndex === images.length - 1
+                    currentImageIndex === images?.length - 1
                       ? images.length - 1
                       : currentImageIndex + 1
                   )
@@ -401,7 +455,9 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
           <input type="file" onChange={handleFileChange} multiple />
         </article>
         <article>
-          <div>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+          >
             {category && (
               <div
                 style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
@@ -415,40 +471,78 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
               </div>
             )}
 
-            <PrimaryButton
-              onClick={async () => {
-                const result = await CustomDialog(<CategoryDialog />);
-                if (result) {
-                  setCategory(result);
-                }
-              }}
-            >
-              Select Category
-            </PrimaryButton>
+            {!category && (
+              <Autocomplete
+                label="Category"
+                url="/api/categories"
+                onSelect={(x) => setCategory(x)}
+                prop="name"
+                error={error?.category}
+              />
+            )}
+
+            {brand && (
+              <div
+                style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
+              >
+                <span>Brand: {brand.name}</span>
+                <i
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setBrand(null)}
+                  className="fa-solid fa-trash-can"
+                />
+              </div>
+            )}
+
+            {!brand && (
+              <Autocomplete
+                label="Brand"
+                url="/api/brands"
+                onSelect={(x) => setBrand(x)}
+                prop="name"
+              />
+            )}
           </div>
           <FloatingTextField
             label="Name"
             value={name}
+            error={error?.name}
             onChange={(e) => setName(e.target.value)}
           />
           <FloatingTextField
             label="Description"
             value={description}
+            error={error?.description}
             onChange={(e) => setDescription(e.target.value)}
           />
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <FloatingTextField
               label="Price"
               value={price}
-              prependText="$"
               type="number"
+              error={error?.price}
               onChange={(e) => setPrice(e.target.value)}
             />
             <FloatingTextField
               label="Stock"
               value={stock}
               type="number"
+              error={error?.stock}
               onChange={(e) => setStock(e.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <FloatingTextField
+              label="Buy Price"
+              value={buyPrice}
+              type="number"
+              onChange={(e) => setBuyPrice(e.target.value)}
+            />
+            <FloatingTextField
+              label="Base Price"
+              value={basePrice}
+              type="number"
+              onChange={(e) => setBasePrice(e.target.value)}
             />
           </div>
           <div style={{ width: "100%" }}>
@@ -465,7 +559,12 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
         <article>
           <form
             onSubmit={addProperty}
-            style={{ display: "flex", width: "100%", gap: "0.5rem" }}
+            style={{
+              display: "flex",
+              width: "100%",
+              gap: "0.5rem",
+              alignItems: "center",
+            }}
           >
             <FloatingTextField
               label="New Property"
@@ -475,7 +574,7 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
             <PrimaryButton>Add</PrimaryButton>
           </form>
           <PropertyContainer>
-            {properties.map((property, propertyIndex) => (
+            {properties?.map((property, propertyIndex) => (
               <section key={propertyIndex}>
                 <h3 className="property-name">
                   <span>{property.name}</span>
@@ -536,7 +635,17 @@ export const ProductUpdateCreateDialog = ({ product, onCreated }) => {
       </div> */}
       </section>
 
-      <PrimaryButton onClick={onSubmit}>Add</PrimaryButton>
+      {row?.id ? (
+        <SaveButton
+          loading={loading}
+          onSaveAndClose={() => onSubmit(true)}
+          onDelete={handleOnDelete}
+        />
+      ) : (
+        <PrimaryButton loading={loading} onClick={() => onSubmit(true)}>
+          Create
+        </PrimaryButton>
+      )}
     </CreateDialogStyled>
   );
 };

@@ -35,7 +35,7 @@ export default function SummaryCard({ title, subtitle, number, color }) {
         <h4 style={{ color }}>{title}</h4>
       </div>
       <div className="footer">
-        <p>Lorem ipsum dolor sit.</p>
+        <p>Under construction</p>
       </div>
     </CardStyled>
   );

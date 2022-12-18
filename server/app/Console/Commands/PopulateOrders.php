@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Console\Command;
 use Faker\Factory as Faker;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PopulateOrders extends Command
 {
@@ -55,6 +56,8 @@ class PopulateOrders extends Command
                 "status" => $faker->randomElement(["pending", "shipped", "cancelled", "returned"]),
                 "created_at" => $faker->dateTimeBetween("-1 week", "now"),
                 "updated_at" => $faker->dateTimeBetween("-1 week", "now"),
+                "status" => $faker->randomElement(["pending", "shipped", "cancelled", "returned"]),
+                "uuid" => Str::random(10),
             ]);
 
             $order = Order::latest()->first();

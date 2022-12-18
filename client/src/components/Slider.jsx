@@ -121,8 +121,20 @@ export const ImageSlider = ({ items, height, onNextSlide, onPrevSlide }) => {
   );
 };
 
-export default function Slider({ items, height, onNextSlide, onPrevSlide }) {
+export default function Slider({
+  items,
+  height,
+  onNextSlide,
+  onPrevSlide,
+  reset,
+}) {
   const [current, setCurrent] = React.useState(0);
+
+  useEffect(() => {
+    if (reset) {
+      setCurrent(0);
+    }
+  }, [reset]);
 
   useEffect(() => {
     if (onNextSlide) {

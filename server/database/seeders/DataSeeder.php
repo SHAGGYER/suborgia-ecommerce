@@ -37,8 +37,6 @@ class DataSeeder extends Seeder
         for ($i = 0; $i < 50; $i++) {
             DB::table('brands')->insert([
                 'name' => $faker->lexify('brand-????'),
-                'description' => $faker->text,
-                'image' => $faker->imageUrl(640, 480, 'cats', true, 'Faker'),
                 'category_id' => $faker->numberBetween(1, 10),
                 "created_at" => Carbon::now(),
                 "updated_at" => Carbon::now(),
@@ -56,6 +54,8 @@ class DataSeeder extends Seeder
                 'stock' => $faker->numberBetween(0, 100),
                 'category_id' => $faker->numberBetween(1, 10),
                 'brand_id' => $faker->numberBetween(1, 20),
+                "buy_price" => $faker->numberBetween(100, 1000),
+                "base_price" => $faker->numberBetween(100, 1000),
                 "created_at" => Carbon::now(),
                 "updated_at" => Carbon::now(),
             ]);
@@ -85,6 +85,7 @@ class DataSeeder extends Seeder
         $user = new User();
         $user->name = 'admin';
         $user->email = 'mikolaj73@gmail.com';
+        $user->role = "admin";
         $user->password = bcrypt('testtest');
         $user->save();
 

@@ -11,7 +11,6 @@ const FloatingTextFieldStyled = styled.div`
   &.field {
     width: 100%;
     position: relative;
-    margin-bottom: 1rem;
   }
 
   label,

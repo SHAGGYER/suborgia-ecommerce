@@ -19,7 +19,7 @@ class ProductsController extends Controller
 {
     public function getProduct(Request $request, $id)
     {
-        $product = Product::with("category", "images", "properties.fields", "stockCollections")
+        $product = Product::with("category", "brand", "images", "properties.fields", "stockCollections")
             ->where("id", $id)
             ->first();
 
@@ -28,18 +28,35 @@ class ProductsController extends Controller
 
     public function search(Request $request)
     {
-        $products = Product::with("category", "images", "properties.fields")
-            ->where("name", "like", "%" . $request->input("search") . "%")
-            ->paginate(15);
+        $products = Product::with("category", "brand", "images", "properties.fields");
+
+        if ($request->has("search")) {
+            $products = $products->where("name", "like", "%" . $request->input("search") . "%");
+        }
+
+        $products = $this->handleAdditionalQuery($request, $products);
+        $products = $this->handleOrderByQuery($request, $products);
+
+        $products = $products->paginate(15);
 
         return response()->json(["content" => $products]);
     }
 
     public function create(Request $request)
     {
+        $request->validate([
+            "name" => "required",
+            "description" => "required",
+            "price" => "required",
+            "category" => "required",
+            "stock" => "required",
+        ]);
+
         $product = $this->createOrUpdateProduct($request, null);
         $this->uploadImages($request->file("images"), $product->id);
         $this->createOrUpdateProperties($request, $product);
+
+        $product = Product::with("category", "brand", "images", "properties.fields", "stockCollections")->whereId($product->id)->first();
 
         return response()->json(["content" => $product]);
     }
@@ -52,6 +69,8 @@ class ProductsController extends Controller
             $this->uploadImages($request->file("images"), $product->id);
         }
         $this->createOrUpdateProperties($request, $product);
+
+        $product = Product::with("category", "brand", "images", "properties.fields", "stockCollections")->whereId($product->id)->first();
 
         return response()->json(["content" => $product]);
     }
@@ -83,7 +102,7 @@ class ProductsController extends Controller
             $fileName = self::uploadFile($file);
 
             $dbImage = new ProductImage();
-            $dbImage->file_path = URL::to('/') . "/uploads/" . $fileName;
+            $dbImage->file_path = $fileName;
             $dbImage->product_id = $productId;
             $dbImage->save();
         }
@@ -101,7 +120,10 @@ class ProductsController extends Controller
         $product->description = $request->input("description");
         $product->long_description = $request->input("long_description");
         $product->price = $request->input("price");
-        $product->category_id = $request->input("category_id");
+        $product->category_id = $request->input("category");
+        $product->base_price = !empty($request->input("base_price")) ? $request->input("base_price") : null;
+        $product->buy_price = !empty($request->input("buy_price")) ? $request->input("buy_price") : null;
+        $product->brand_id = !empty($request->input("brand")) ? $request->input("brand") : null;
         $product->stock = $request->input("stock");
         $product->save();
 
@@ -138,14 +160,26 @@ class ProductsController extends Controller
         }
     }
 
-    public function deleteProducts(Request $request)
+    public function deleteProduct(Request $request, $id)
     {
-        $ids = $request->input("ids");
-        $products = Product::whereIn("id", $ids)->get();
-        foreach ($products as $product) {
-            $product->delete();
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json(["message" => "Product not found"], 404);
         }
-        return response()->json(["content" => $products]);
+
+        foreach ($product->images as $image) {
+            $image->delete();
+        }
+
+        foreach ($product->properties as $property) {
+            foreach ($property->fields as $field) {
+                $field->delete();
+            }
+            $property->delete();
+        }
+
+        $product->delete();
+        return response()->json(["content" => "ok"], 204);
     }
 
     public function updateStockCollection(Request $request, $id)

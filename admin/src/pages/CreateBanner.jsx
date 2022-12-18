@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
+import Autocomplete from "../components/Autocomplete";
 import Page from "../components/Page";
 import PrimaryButton from "../components/UI/PrimaryButton";
 import HttpClient from "../services/HttpClient";
-import Autocomplete from "./Autocomplete";
 
 const CreateBannerStyled = styled.div`
   position: relative;

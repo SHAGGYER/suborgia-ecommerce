@@ -3,6 +3,7 @@ import FloatingTextField from "./FloatingTextField";
 import styled from "styled-components";
 import HttpClient from "../services/HttpClient";
 import PrimaryButton from "./UI/PrimaryButton";
+import SaveButton from "./SaveButton";
 
 const CreateDialogStyled = styled.div`
   padding: 1rem;
@@ -23,11 +24,16 @@ const CreateDialogStyled = styled.div`
   }
 `;
 
-export const CouponUpdateCreateDialog = ({ coupon, onCreated }) => {
-  const [code, setCode] = React.useState(coupon ? coupon.code : "");
-  const [percentage, setPercentage] = React.useState(
-    coupon ? coupon.percentage : ""
-  );
+export const CouponUpdateCreateDialog = ({
+  row,
+  onCreated,
+  onClose,
+  onUpdated,
+  onDeleted,
+}) => {
+  const [code, setCode] = React.useState(row ? row.code : "");
+  const [percentage, setPercentage] = React.useState(row ? row.percentage : "");
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async () => {
     const body = {
@@ -35,22 +41,33 @@ export const CouponUpdateCreateDialog = ({ coupon, onCreated }) => {
       percentage,
     };
 
-    if (coupon) {
-      await HttpClient().post(`/api/coupons/${coupon.id}`, body);
-      window.location = "/coupons";
+    if (row?.id) {
+      setLoading(true);
+      const { data } = await HttpClient().put(`/api/coupons/${row.id}`, body);
+      onUpdated(data.content);
+      onClose();
+      setLoading(false);
     } else {
-      await HttpClient().post("/api/coupons", body);
-      if (onCreated) {
-        onCreated();
-      } else {
-        window.location = "/coupons";
-      }
+      setLoading(true);
+      const { data } = await HttpClient().post("/api/coupons", body);
+      onCreated(data.content);
+      onClose();
+      setLoading(false);
     }
+  };
+
+  const onDelete = async () => {
+    setLoading(true);
+
+    await HttpClient().delete(`/api/coupons/${row.id}`);
+    onDeleted();
+    onClose();
+    setLoading(false);
   };
 
   return (
     <CreateDialogStyled>
-      <h1>{coupon ? "Update" : "New"} Coupon</h1>
+      <h1>{row ? "Update" : "New"} Coupon</h1>
       <FloatingTextField
         label="Code"
         value={code}
@@ -62,7 +79,18 @@ export const CouponUpdateCreateDialog = ({ coupon, onCreated }) => {
         onChange={(e) => setPercentage(e.target.value)}
       />
 
-      <PrimaryButton onClick={onSubmit}>Save</PrimaryButton>
+      {!row?.id && (
+        <PrimaryButton loading={loading} onClick={onSubmit}>
+          Save
+        </PrimaryButton>
+      )}
+      {row?.id && (
+        <SaveButton
+          loading={loading}
+          onSaveAndClose={onSubmit}
+          onDelete={onDelete}
+        />
+      )}
     </CreateDialogStyled>
   );
 };

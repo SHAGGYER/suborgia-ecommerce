@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('description');
             $table->text("long_description")->nullable();
             $table->string('image')->nullable();
+            $table->double("buy_price")->nullable();
+            $table->double("base_price")->nullable();
             $table->double('price');
             $table->integer('stock');
             $table->integer('category_id');

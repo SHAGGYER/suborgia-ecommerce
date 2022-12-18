@@ -57,7 +57,7 @@ export default function NavbarSubmenu({ title, content, icon }) {
 
   return (
     <li className="navlink no-close" onClick={() => setOpen(!open)} ref={ref}>
-      {title}
+      {icon ? icon : title}
       <Container className={open ? "open" : ""}>{content()}</Container>
     </li>
   );

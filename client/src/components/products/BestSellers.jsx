@@ -46,9 +46,16 @@ const BestSellersStyled = styled.div`
 
 export default function BestSellers() {
   const [bestSellers, setBestSellers] = React.useState([]);
+  const [reset, setReset] = React.useState(false);
 
   const nextSlide = useRef(undefined);
   const prevSlide = useRef(undefined);
+
+  useEffect(() => {
+    if (reset) {
+      setReset(false);
+    }
+  }, [reset]);
 
   useEffect(() => {
     getBestSellers();
@@ -65,7 +72,11 @@ export default function BestSellers() {
 
   const getBestSellers = async () => {
     const { data } = await HttpClient().get("/api/filters/bestSellers");
-    setBestSellers([...bestSellers, ...data.content]);
+    if (bestSellers.length < 20) {
+      setBestSellers([...bestSellers, ...data.content]);
+    } else {
+      setBestSellers([...data.content]);
+    }
   };
 
   const getBestSellerItems = () => {
@@ -105,6 +116,7 @@ export default function BestSellers() {
         onNextSlide={(next) => (nextSlide.current = next)}
         onPrevSlide={(prev) => (prevSlide.current = prev)}
         items={getBestSellerItems()}
+        reset={reset}
       />
     </BestSellersStyled>
   );

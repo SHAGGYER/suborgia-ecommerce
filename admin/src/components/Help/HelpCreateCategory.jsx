@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import AppContext from "../../AppContext";
-import { CreateCategoryDialog } from "../../pages/Categories";
 import cogoToast from "cogo-toast";
+import { CategoryUpdateCreateDialog } from "../CategoryUpdateCreateDialog";
 
 export default function HelpCreateCategory() {
   const { setCurrentHelp, currentHelp } = useContext(AppContext);
@@ -13,7 +13,7 @@ export default function HelpCreateCategory() {
 
   return (
     <div>
-      <CreateCategoryDialog onCreated={onCreated} />
+      <CategoryUpdateCreateDialog onCreated={onCreated} />
     </div>
   );
 }

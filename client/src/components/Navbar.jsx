@@ -218,10 +218,7 @@ const Menu = ({}) => {
     <>
       <ul className="nav">
         <li className="navlink" onClick={() => history.push("/")}>
-          Home
-        </li>
-        <li className="navlink" onClick={() => history.push("/sales")}>
-          Til Forretninger
+          Shop
         </li>
       </ul>
     </>
@@ -255,7 +252,7 @@ export default function Navbar() {
         <div>
           <ul className="nav">
             <NavbarSubmenu
-              title="Account"
+              icon={<i className="fa-solid fa-user" />}
               content={() => (
                 <div style={{ width: 200, padding: "1rem" }}>
                   {!user ? (
@@ -300,7 +297,7 @@ export default function Navbar() {
               )}
             />
             <li className="navlink" onClick={() => history.push("/cart")}>
-              Cart
+              <i className="fa-solid fa-cart-shopping" />
             </li>
           </ul>
         </div>

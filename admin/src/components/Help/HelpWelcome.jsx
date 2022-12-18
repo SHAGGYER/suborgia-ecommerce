@@ -2,6 +2,18 @@ import React, { useContext } from "react";
 import AppContext from "../../AppContext";
 import cogoToast from "cogo-toast";
 import PrimaryButton from "../UI/PrimaryButton";
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+
+  p {
+    line-height: 1.5;
+  }
+`;
 
 export default function HelpWelcome() {
   const { setCurrentHelp, currentHelp } = useContext(AppContext);
@@ -12,7 +24,7 @@ export default function HelpWelcome() {
   };
 
   return (
-    <div>
+    <Container>
       <h1>Welcome</h1>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
@@ -24,6 +36,6 @@ export default function HelpWelcome() {
       </p>
 
       <PrimaryButton onClick={onNext}>Next</PrimaryButton>
-    </div>
+    </Container>
   );
 }

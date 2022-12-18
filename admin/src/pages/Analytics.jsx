@@ -68,16 +68,6 @@ export default function Analytics() {
               badge={"Last 7 days"}
               number={"$" + mostBoughtCategories.total}
             />
-            <AreaChart
-              categories={["Clothes", "Computers", "Microphones", "Hats"]}
-              data={[120, 170, 155, 120]}
-              fillColor="#C4EBFD"
-              height={200}
-              strokeColor="#38BDF8"
-              title={"Visitors"}
-              badge={"Last 30 days"}
-              number={"34,500"}
-            />
           </>
         )}
       </div>

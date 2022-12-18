@@ -12,6 +12,9 @@ import Payment from "./pages/Payment";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import RegisterSuccess from "./pages/RegisterSuccess";
+import OrderDetail from "./pages/OrderDetail";
+import PasswordReset from "./pages/PasswordReset";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -63,7 +66,16 @@ function App() {
           <Route path="/register">
             <Register />
           </Route>
+          <Route path="/forgot-password">
+            <ForgotPassword />
+          </Route>
+          <Route path="/reset-password">
+            <PasswordReset />
+          </Route>
 
+          <Route path="/orders/:id" exact>
+            <OrderDetail />
+          </Route>
           <Route path="/cart">
             <Cart />
           </Route>

@@ -22,6 +22,11 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
     public function properties()
     {
         return $this->hasMany(ProductProperty::class, 'product_id', 'id');
@@ -40,5 +45,10 @@ class Product extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class, 'product_id', 'id');
+    }
+
+    public function ordersItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_id', 'id');
     }
 }

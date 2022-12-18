@@ -7,13 +7,14 @@ use Illuminate\Http\Request;
 
 class CouponController extends Controller
 {
-    public function deleteCouponsWithIds(Request $request)
+    public function delete(Request $request, $id)
     {
-        Coupon::whereIn('id', $request->ids)->delete();
+        $coupon = Coupon::findOrFail($id);
+        $coupon->delete();
 
-        return [
-            "content" => "OK"
-        ];
+        return response()->json([
+            "message" => "Coupon deleted successfully"
+        ], 204);
     }
 
     public function create(Request $request)
@@ -41,6 +42,18 @@ class CouponController extends Controller
 
         return [
             "content" => $coupons
+        ];
+    }
+
+    public function update(Request $request, $id)
+    {
+        $coupon = Coupon::findOrFail($id);
+        $coupon->code = $request->code;
+        $coupon->percentage = $request->percentage;
+        $coupon->save();
+
+        return [
+            "content" => $coupon
         ];
     }
 }

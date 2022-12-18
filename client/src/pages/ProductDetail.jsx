@@ -12,12 +12,26 @@ import ProductProperties from "../components/products/ProductProperties";
 import cogoToast from "cogo-toast";
 import { Wrapper } from "../components/Wrapper";
 import Reviews from "../components/Reviews";
+import Quantity from "../components/Quantity";
 
 const ContentStyled = styled.div`
   margin-top: 3rem;
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 2rem;
+
+  .orders-count {
+    margin-bottom: 1.5rem;
+    background-color: #f5f5f5;
+    padding: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    i {
+      color: orangered;
+    }
+  }
 
   .rating {
     display: flex;
@@ -85,6 +99,17 @@ export default function ProductDetail() {
     cogoToast.success("Product added to cart");
   };
 
+  const shouldShowDiscountedPrice = () => {
+    return product?.base_price > product?.price;
+  };
+
+  const calculateDiscountedPercentage = () => {
+    return (
+      ((product?.base_price - product?.price) / product?.base_price) *
+      100
+    ).toFixed(0);
+  };
+
   return (
     <Page>
       <Wrapper>
@@ -106,6 +131,21 @@ export default function ProductDetail() {
             )}
           </div>
           <div>
+            <div>
+              {loading ? (
+                <Skeleton height={50} width={"100%"} />
+              ) : (
+                product.orders_count > 0 && (
+                  <div className="orders-count">
+                    <i className="fa-brands fa-hotjar" />
+                    <p>
+                      Purchased <u>{product.orders_count} times</u> in the last
+                      7 days.
+                    </p>
+                  </div>
+                )
+              )}
+            </div>
             <div className="rating">
               {loading ? (
                 <Skeleton height={30} width={250} />
@@ -130,7 +170,21 @@ export default function ProductDetail() {
                   style={{ marginBottom: "2rem" }}
                 />
               ) : (
-                <h2>${price}</h2>
+                <h2
+                  style={{ display: "flex", gap: "1rem", alignItems: "center" }}
+                >
+                  <span>${price} </span>
+                  {shouldShowDiscountedPrice() && (
+                    <s style={{ fontSize: 20, color: "#bebebe" }}>
+                      ${product?.base_price}
+                    </s>
+                  )}
+                  {shouldShowDiscountedPrice() && (
+                    <span style={{ fontSize: 20, color: "green" }}>
+                      {calculateDiscountedPercentage()}% off
+                    </span>
+                  )}
+                </h2>
               )}
               <div className="description">
                 {loading ? (
@@ -142,17 +196,20 @@ export default function ProductDetail() {
               {loading ? (
                 <Skeleton height={30} width={200} />
               ) : (
-                <PrimaryButton
-                  disabled={addToCartLoading || outOfStock}
-                  onClick={() => handleAddToCart()}
-                >
-                  {addToCartLoading ? (
-                    <i className="fas fa-spinner fa-spin"></i>
-                  ) : (
-                    <i className="fa-solid fa-shopping-cart"></i>
-                  )}
-                  Add to cart
-                </PrimaryButton>
+                <>
+                  <Quantity onChange={(quantity) => setQuantity(quantity)} />
+                  <PrimaryButton
+                    disabled={addToCartLoading || outOfStock}
+                    onClick={() => handleAddToCart()}
+                  >
+                    {addToCartLoading ? (
+                      <i className="fas fa-spinner fa-spin"></i>
+                    ) : (
+                      <i className="fa-solid fa-shopping-cart"></i>
+                    )}
+                    Add to cart
+                  </PrimaryButton>
+                </>
               )}
             </div>
 

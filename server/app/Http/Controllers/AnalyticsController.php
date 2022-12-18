@@ -120,7 +120,7 @@ class AnalyticsController extends Controller
         $products = $orders->map(function ($order) {
             return $order->items->map(function ($item) {
                 return [
-                    'name' => $item->product->category->name,
+                    'name' => $item->product->category->name ?? 'No Category',
                     'quantity' => $item->quantity,
                     'total' => $item->total
                 ];

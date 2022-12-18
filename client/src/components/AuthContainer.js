@@ -5,6 +5,10 @@ export const AuthContainer = styled.div`
   margin: 0 auto;
 
   .content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
     background-color: white;
     padding: 2rem;
     width: 600px;
@@ -12,14 +16,20 @@ export const AuthContainer = styled.div`
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
     h1 {
       text-align: center;
-      margin-bottom: 0.5rem;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 2rem;
 
       a {
         color: #007bff;

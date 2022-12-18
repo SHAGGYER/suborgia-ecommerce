@@ -15,6 +15,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [generalError, setGeneralError] = useState(null);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +38,7 @@ export default function Login() {
     } catch (error) {
       console.log(error);
       setError(error?.response?.data?.errors);
+      setGeneralError(error?.response?.data?.message);
       setLoading(false);
     }
   };
@@ -59,6 +61,14 @@ export default function Login() {
               Sign up
             </a>
           </p>
+          <div className="header">
+            Forgot Password?{" "}
+            <a href="#" onClick={() => history.push("/forgot-password")}>
+              Reset password
+            </a>
+          </div>
+
+          {generalError && <p style={{ color: "red" }}>{generalError}</p>}
 
           <form onSubmit={onSubmit}>
             <FloatingTextField

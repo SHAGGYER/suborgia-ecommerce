@@ -34,7 +34,7 @@ export default function Login({ setUser }) {
         password,
       };
 
-      const { data } = await HttpClient().post("/api/auth/login", body);
+      const { data } = await HttpClient().post("/api/auth/admin/login", body);
       localStorage.setItem("token", data.token);
       window.location.reload();
     } catch (e) {

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   TextAreaStyle,
   LabelStyle,
@@ -14,20 +14,20 @@ import {
 // Select
 
 const Select = ({
-                  label,
-                  value,
-                  onChange,
-                  error,
-                  placeholder,
-                  children,
-                  slim,
-                  className,
-                  dark,
-                }) => {
+  label,
+  value,
+  onChange,
+  error,
+  placeholder,
+  children,
+  slim,
+  className,
+  dark,
+}) => {
   return (
-    <div>
+    <div style={{ width: "100%" }}>
       {label && <LabelStyle>{label}</LabelStyle>}
-      <div style={{display: "flex", alignItems: "center"}}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <SelectStyle
           value={value}
           onChange={onChange}
@@ -47,11 +47,11 @@ const Select = ({
 
 // Switch
 
-const Switch = ({checked, onChange}) => {
+const Switch = ({ checked, onChange }) => {
   return (
     <SwitchWrapperStyle>
-      <SwitchInputStyle type="checkbox" checked={checked} onChange={onChange}/>
-      <SwitchSliderStyle/>
+      <SwitchInputStyle type="checkbox" checked={checked} onChange={onChange} />
+      <SwitchSliderStyle />
     </SwitchWrapperStyle>
   );
 };
@@ -59,18 +59,18 @@ const Switch = ({checked, onChange}) => {
 // Text Area
 
 const TextArea = ({
-                    label,
-                    value,
-                    onChange,
-                    onClick,
-                    error,
-                    placeholder,
-                    dark,
-                  }) => {
+  label,
+  value,
+  onChange,
+  onClick,
+  error,
+  placeholder,
+  dark,
+}) => {
   return (
     <div>
       {label && <LabelStyle dark={dark}>{label}</LabelStyle>}
-      <div style={{display: "flex", alignItems: "center"}}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <TextAreaStyle
           value={value}
           onChange={onChange}
@@ -86,33 +86,36 @@ const TextArea = ({
 };
 
 const TextField = ({
-                     label,
-                     style,
-                     inputEl,
-                     value,
-                     onChange,
-                     onBlur,
-                     onClick,
-                     error,
-                     type,
-                     placeholder,
-                     dark,
-                     readonly,
-                     disabled,
-                     appendButton,
-                     appendOnClick,
-                     noMarginLabel
-                   }) => {
+  label,
+  style,
+  inputEl,
+  value,
+  onChange,
+  onBlur,
+  onClick,
+  error,
+  type,
+  placeholder,
+  dark,
+  readonly,
+  disabled,
+  appendButton,
+  appendOnClick,
+  noMarginLabel,
+}) => {
   return (
-    <div style={{width: "100%", background: "white", padding: "1rem 1rem"}}>
-      {label && <LabelStyle noMarginLabel={noMarginLabel} dark={dark}>{label}</LabelStyle>}
-      <div style={{display: "flex", alignItems: "center", gap: "1rem"}}>
+    <div style={{ width: "100%", background: "white", padding: "1rem 1rem" }}>
+      {label && (
+        <LabelStyle noMarginLabel={noMarginLabel} dark={dark}>
+          {label}
+        </LabelStyle>
+      )}
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         {!inputEl ? (
           <TextFieldStyle
             readOnly={readonly}
             value={value}
-            onChange={!disabled ? onChange : () => {
-            }}
+            onChange={!disabled ? onChange : () => {}}
             onClick={onClick}
             placeholder={placeholder}
             type={type}
@@ -124,7 +127,7 @@ const TextField = ({
           inputEl
         )}
         {appendButton && (
-          <div style={{cursor: "pointer"}} onClick={appendOnClick}>
+          <div style={{ cursor: "pointer" }} onClick={appendOnClick}>
             {appendButton}
           </div>
         )}
@@ -135,21 +138,21 @@ const TextField = ({
 };
 
 const PasswordField = ({
-                         label,
-                         value,
-                         onChange,
-                         onBlur,
-                         onClick,
-                         error,
-                         type,
-                         placeholder,
-                         dark,
-                         disabled,
-                       }) => {
+  label,
+  value,
+  onChange,
+  onBlur,
+  onClick,
+  error,
+  type,
+  placeholder,
+  dark,
+  disabled,
+}) => {
   const [shown, setIsShown] = useState(false);
 
   return (
-    <div style={{width: "100%"}}>
+    <div style={{ width: "100%" }}>
       {label && <LabelStyle dark={dark}>{label}</LabelStyle>}
       <div
         style={{
@@ -162,15 +165,14 @@ const PasswordField = ({
       >
         <TextFieldStyle
           value={value}
-          onChange={!disabled ? onChange : () => {
-          }}
+          onChange={!disabled ? onChange : () => {}}
           onClick={onClick}
           placeholder={placeholder}
           type={shown ? "text" : "password"}
           dark={dark}
           onBlur={onBlur}
           disabled={disabled}
-          style={{border: "none", outline: "none"}}
+          style={{ border: "none", outline: "none" }}
         />
         <div>
           <i
@@ -186,7 +188,7 @@ const PasswordField = ({
 
 // Form
 
-export const Form = ({children, onSubmit, margin, padding, width}) => {
+export const Form = ({ children, onSubmit, margin, padding, width }) => {
   return (
     <FormStyle
       width={width}

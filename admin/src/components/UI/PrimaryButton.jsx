@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const PrimaryButton = styled.button`
+const PrimaryButtonStyled = styled.button`
   background-color: var(--primary);
   border: none;
   padding: 0.5rem 1rem;
@@ -28,4 +28,21 @@ const PrimaryButton = styled.button`
   }
 `;
 
-export default PrimaryButton;
+export default function PrimaryButton({
+  type,
+  children,
+  disabled,
+  loading,
+  onClick,
+}) {
+  return (
+    <PrimaryButtonStyled
+      type={type ? type : "submit"}
+      disabled={disabled || loading}
+      onClick={onClick}
+    >
+      {loading && <i className="fa-solid fa-spinner fa-spin"></i>}
+      {children}
+    </PrimaryButtonStyled>
+  );
+}

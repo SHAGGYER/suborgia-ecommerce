@@ -1,40 +1,34 @@
 import React, { useEffect, useState } from "react";
+import { CouponUpdateCreateDialog } from "../components/CouponUpdateCreateDialog";
+import MyResourceBrowser from "../components/MyResourceBrowser";
 import Page from "../components/Page";
-import ResourceBrowser from "../components/ResourceBrowser";
 
 export default function Coupons() {
-  const [refetch, setRefetch] = useState(false);
-
-  useEffect(() => {
-    if (refetch) {
-      setRefetch(false);
-    }
-  }, [refetch]);
-
   const columns = [
     {
       name: "Code",
-      selector: "code",
-      sortable: true,
+      key: "code",
     },
     {
       name: "Percentage",
-      selector: "percentage",
-      sortable: true,
-      format: (row) => `${row.percentage}%`,
+      key: "percentage",
+      cell: (row) => `${row.percentage}%`,
     },
   ];
 
   return (
     <Page>
-      <div>
-        <ResourceBrowser
-          name="Coupons"
-          url="/api/coupons"
-          columns={columns}
-          refetch={refetch}
-        />
-      </div>
+      <MyResourceBrowser
+        templateColumns="150px 1fr"
+        title="Coupons"
+        url="/api/coupons"
+        component={CouponUpdateCreateDialog}
+        columns={columns}
+        newRow={{
+          code: "New Code",
+          percentage: "",
+        }}
+      />
     </Page>
   );
 }

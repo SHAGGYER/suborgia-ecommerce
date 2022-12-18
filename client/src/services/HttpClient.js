@@ -1,6 +1,18 @@
 import axios from "axios";
+import cogoToast from "cogo-toast";
 
 axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL;
+
+axios.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    if (error?.response?.data?.message) {
+      cogoToast.error(error?.response?.data?.message);
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 const HttpClient = () => {
   const token = localStorage.getItem("token");

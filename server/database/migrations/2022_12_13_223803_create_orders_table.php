@@ -27,6 +27,7 @@ return new class extends Migration
             $table->double("total");
             $table->double("discount")->nullable();
             $table->string("status")->enum(["pending", "shipped", "cancelled", "returned"]);
+            $table->string("uuid");
             $table->timestamps();
         });
     }

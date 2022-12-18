@@ -127,10 +127,6 @@ function Sidebar(props) {
               title: "Browse",
               to: "/users",
             },
-            {
-              title: "Create",
-              to: "/users/create",
-            },
           ],
         },
         {
@@ -141,9 +137,15 @@ function Sidebar(props) {
               title: "Browse",
               to: "/categories",
             },
+          ],
+        },
+        {
+          title: "Brands",
+          icon: <i className="fa-solid fa-table-cells-large" />,
+          items: [
             {
-              title: "Create",
-              to: "/categories/create",
+              title: "Browse",
+              to: "/brands",
             },
           ],
         },
@@ -155,9 +157,15 @@ function Sidebar(props) {
               title: "Browse",
               to: "/products",
             },
+          ],
+        },
+        {
+          title: "Orders",
+          icon: <i className="fa-brands fa-shopify" />,
+          items: [
             {
-              title: "Create",
-              to: "/products/create",
+              title: "Browse",
+              to: "/orders",
             },
           ],
         },
@@ -169,15 +177,11 @@ function Sidebar(props) {
               title: "Browse",
               to: "/coupons",
             },
-            {
-              title: "Create",
-              to: "/coupons/create",
-            },
           ],
         },
         {
           title: "Banners",
-          icon: <i className="fa-regular fa-handshake" />,
+          icon: <i className="fa-solid fa-image" />,
           items: [
             {
               title: "Browse",
