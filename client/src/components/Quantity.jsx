@@ -66,7 +66,7 @@ export default function Quantity({ onChange }) {
         <input
           type="number"
           value={quantity}
-          onChange={(e) => handleQuantityChange(e)}
+          onChange={(e) => handleQuantityChange(e.target.value)}
         />
         <article
           className="right"
