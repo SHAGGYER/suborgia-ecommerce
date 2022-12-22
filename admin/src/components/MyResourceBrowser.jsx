@@ -464,7 +464,13 @@ export default function MyResourceBrowser({
                 "fa-solid fa-angles-left" +
                 (isPreviousPageDisabled() ? " disabled" : "")
               }
-              onClick={() => (isPreviousPageDisabled() ? null : setPage(1))}
+              onClick={
+                isPreviousPageDisabled()
+                  ? null
+                  : () => {
+                      setPage(1);
+                    }
+              }
             />
             <i
               className={

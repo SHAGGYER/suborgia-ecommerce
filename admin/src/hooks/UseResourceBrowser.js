@@ -37,6 +37,7 @@ export const useResourceBrowser = (url, options = {}) => {
 
   useEffect(() => {
     navigate(`?page=${page}`);
+    setShouldRefetch(true);
   }, [page]);
 
   const handleRowCreated = (index, row) => {

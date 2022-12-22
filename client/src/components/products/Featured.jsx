@@ -27,7 +27,7 @@ const BestSellersStyled = styled.div`
 `;
 
 export default function Featured() {
-  const [bestSellers, setBestSellers] = React.useState([]);
+  const [products, setProducts] = React.useState([]);
 
   useEffect(() => {
     getBestSellers();
@@ -40,23 +40,23 @@ export default function Featured() {
     }, 5000);
 
     return () => clearInterval(intervalId);
-  }, [bestSellers]);
+  }, [products]);
 
   const getBestSellers = async () => {
-    const { data } = await HttpClient().get("/api/filters/bestSellers");
-    setBestSellers([...bestSellers, ...data.content]);
+    const { data } = await HttpClient().get("/api/filters/featured");
+    setProducts([...products, ...data.content]);
   };
 
-  const getBestSellerItems = () => {
-    return Array(parseInt(bestSellers.length / 3))
+  const getItems = () => {
+    return Array(parseInt(products.length / 3))
       .fill()
       .map((x, i) => {
         return (
           <article key={i}>
-            {bestSellers
+            {products
               .filter((x, index) => index >= i * 3 && index < i * 3 + 3)
               .map((item, index) => (
-                <Product key={index} product={item} size={100} />
+                <Product key={index} featured product={item} size={100} />
               ))}
           </article>
         );
@@ -67,7 +67,7 @@ export default function Featured() {
     <BestSellersStyled>
       <h3>Featured</h3>
 
-      <Slider items={getBestSellerItems()} />
+      <Slider items={getItems()} />
     </BestSellersStyled>
   );
 }

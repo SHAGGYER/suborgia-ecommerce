@@ -22,6 +22,7 @@ import CreateBanner from "./pages/CreateBanner";
 import Orders from "./pages/Orders";
 import Banners from "./pages/Banners";
 import Brands from "./pages/Brands";
+import Blog from "./pages/Blog";
 
 function App() {
   const location = useLocation();
@@ -83,6 +84,7 @@ function App() {
                 <Page>
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
+                    <Route path="/blog" element={<Blog />} />
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/analytics" element={<Analytics />} />
                     <Route path="/brands" element={<Brands />} />

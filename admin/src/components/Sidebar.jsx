@@ -193,6 +193,16 @@ function Sidebar(props) {
             },
           ],
         },
+        {
+          title: "Blog",
+          icon: <i className="fa-regular fa-handshake" />,
+          items: [
+            {
+              title: "Browse",
+              to: "/blog",
+            },
+          ],
+        },
       ],
     },
     {

@@ -220,6 +220,9 @@ const Menu = ({}) => {
         <li className="navlink" onClick={() => history.push("/")}>
           Shop
         </li>
+        <li className="navlink" onClick={() => history.push("/blog")}>
+          Blog
+        </li>
       </ul>
     </>
   );

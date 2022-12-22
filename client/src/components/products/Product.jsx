@@ -55,7 +55,7 @@ const Container = styled.div`
   width: 100%;
   transition: all 0.5s ease-in-out;
 
-  &:hover:not(.slim) {
+  &:hover:not(.slim):not(.featured) {
     border-bottom: none;
     box-shadow: 0 10px 7px 0 rgba(0, 0, 0, 0.2);
     .hover-content {
@@ -168,7 +168,7 @@ const ProductStyled = styled.div`
   }
 `;
 
-export default function Product({ product, loading, slim }) {
+export default function Product({ product, loading, slim, featured }) {
   const history = useHistory();
   const [showSlider, setShowSlider] = React.useState(false);
 
@@ -200,15 +200,19 @@ export default function Product({ product, loading, slim }) {
 
   return (
     <Container
-      className={slim ? "slim" : ""}
+      className={`${slim ? "slim" : ""} ${featured ? "featured" : ""}`}
       onMouseEnter={() => setShowSlider(true)}
       onMouseLeave={() => setShowSlider(false)}
-      onClick={() => (slim ? redirectToProduct() : null)}
+      onClick={() => (slim || featured ? redirectToProduct() : null)}
     >
       {loading ? (
         <Skeleton height={200} width={"100%"} />
       ) : (
-        <ProductStyled className={"product " + (slim ? "slim" : "")}>
+        <ProductStyled
+          className={
+            "product" + (slim ? " slim" : "") + (featured ? " featured" : "")
+          }
+        >
           <div className="image-container">
             <div className="wrapper">
               {showSlider ? (
@@ -247,7 +251,7 @@ export default function Product({ product, loading, slim }) {
           </p>
         </ProductStyled>
       )}
-      {!slim && (
+      {!slim && !featured && (
         <div className="hover-content">
           <PrimaryButton onClick={handleAddToCart}>
             <i className="fa-solid fa-cart-plus" />

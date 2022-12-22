@@ -7,10 +7,10 @@ import { DialogStyled } from "../components/UI/DialogStyled";
 import ResourceBrowser from "../components/ResourceBrowser";
 import { CustomDialog, useDialog } from "react-st-modal";
 import PrimaryButton from "./UI/PrimaryButton";
-import JoditEditor from "jodit-react";
 import Autocomplete from "./Autocomplete";
 import SaveButton from "./SaveButton";
 import cogoToast from "cogo-toast";
+import Editor from "./Editor";
 
 const FieldDialog = ({ field }) => {
   const [usedField, setUsedField] = useState(field);
@@ -127,8 +127,9 @@ const PropertyContainer = styled.div`
   }
 `;
 
-const PropertyStyled = styled.div`
+export const PropertyStyled = styled.div`
   border: 1px solid black;
+  width: 100%;
 
   .fields {
     display: flex;
@@ -234,53 +235,6 @@ export const ProductUpdateCreateDialog = ({
   const [error, setError] = useState(null);
 
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
-
-  const editor = useRef();
-
-  const config = React.useMemo(
-    () => ({
-      readonly: false,
-      spellcheck: false,
-      minHeight: 300,
-      toolbarButtonSize: "medium",
-      showCharsCounter: false,
-      showPlaceholder: false,
-      showXPathInStatusbar: false,
-      disablePlugins: "clean-html, paste",
-      removeButtons: [
-        "fullsize",
-        "undo",
-        "redo",
-        "copyformat",
-        "strikethrough",
-        "eraser",
-      ],
-      buttons: [
-        "bold",
-        "italic",
-        "underline",
-        "|",
-        "paragraph",
-        "fontsize",
-        "font",
-        "|",
-        "ul",
-        "ol",
-        "|",
-        "indent",
-        "outdent",
-        "|",
-        "left",
-        "center",
-        "right",
-        "|",
-        "link",
-        "image",
-        "hr",
-      ],
-    }),
-    []
-  );
 
   const onChangeNewField = (value, propertyIndex) => {
     const newNewFields = [...newFields];
@@ -545,16 +499,7 @@ export const ProductUpdateCreateDialog = ({
               onChange={(e) => setBasePrice(e.target.value)}
             />
           </div>
-          <div style={{ width: "100%" }}>
-            <JoditEditor
-              ref={editor}
-              value={longDescription}
-              tabIndex={1}
-              config={config}
-              onBlur={(newContent) => setLongDescription(newContent)} // preferred to use only this option to update the body for performance reasons
-              onChange={(newContent) => {}}
-            />
-          </div>
+          <Editor value={longDescription} onChange={setLongDescription} />
         </article>
         <article>
           <form

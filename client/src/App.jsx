@@ -15,6 +15,8 @@ import RegisterSuccess from "./pages/RegisterSuccess";
 import OrderDetail from "./pages/OrderDetail";
 import PasswordReset from "./pages/PasswordReset";
 import ForgotPassword from "./pages/ForgotPassword";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -71,6 +73,13 @@ function App() {
           </Route>
           <Route path="/reset-password">
             <PasswordReset />
+          </Route>
+
+          <Route path="/blog" exact>
+            <Blog />
+          </Route>
+          <Route path="/blog/:id" exact>
+            <BlogPost />
           </Route>
 
           <Route path="/orders/:id" exact>

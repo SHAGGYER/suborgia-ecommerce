@@ -10,14 +10,6 @@ use Illuminate\Http\Request;
 
 class FilterController extends Controller
 {
-    public function getFilters(Request $request)
-    {
-        $filters = Filter::with("filter")->where([
-            ["name", "=", $request->input("filter")]
-        ])->get();
-        return response()->json($filters);
-    }
-
     public function getCategories(Request $request)
     {
         $categories = Category::with("brands")->get();
@@ -75,6 +67,12 @@ class FilterController extends Controller
             return $item->product;
         });
 
+        return response()->json(["content" => $products]);
+    }
+
+    public function getFeaturedProducts(Request $request)
+    {
+        $products = Product::with("category", "properties.fields", "images")->inRandomOrder()->get()->take(15);
         return response()->json(["content" => $products]);
     }
 }

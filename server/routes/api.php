@@ -4,6 +4,7 @@ use App\Events\Message;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannersController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BrandsController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoriesController;
@@ -55,6 +56,7 @@ Route::prefix("filters")->group(function () {
         Route::get("categories", "getCategories");
         Route::get("products", "getProducts");
         Route::get("bestSellers", "getBestSellers");
+        Route::get("featured", "getFeaturedProducts");
 
         Route::prefix("products")->group(function () {
             Route::get("{id}", "getProduct");
@@ -144,6 +146,18 @@ Route::middleware("auth:sanctum")->group(function () {
         });
     });
 });
+Route::prefix("blog")->group(function () {
+    Route::controller(BlogController::class)->group(function () {
+        Route::middleware("auth:sanctum")->group(function () {
+            Route::post("/", "create");
+            Route::delete("/{id}", "delete");
+            Route::post("/{id}", "update");
+        });
+        Route::get("/", "search");
+        Route::get("/{id}", "getOne");
+    });
+});
+
 
 Route::middleware("auth:sanctum")->group(function () {
     Route::prefix("analytics")->group(function () {
